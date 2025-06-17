@@ -1,0 +1,3 @@
+# sCdoku
+
+sucoku com alegro 
