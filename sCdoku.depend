@@ -488,3 +488,22 @@
 	<allegro5/allegro.h>
 	<allegro5/allegro_image.h>
 
+1750220831 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
+	<stdio.h>
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	"src/game.c"
+	"src/utils.c"
+
+1750218625 c:\users\dell\documents\codeblocksproject\scdoku\src\game.c
+	"sudoku.c"
+
+1750256829 c:\users\dell\documents\codeblocksproject\scdoku\src\sudoku.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<time.h>
+
+1750218625 c:\users\dell\documents\codeblocksproject\scdoku\src\utils.c
+	<stdlib.h>
+
