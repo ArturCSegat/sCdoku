@@ -10,9 +10,11 @@
 typedef char Board[SIZE][SIZE];
 
 void print_board(Board board) {
-    for (int i =0; i<SIZE; i++) {
+    int i;
+    for (i =0; i<SIZE; i++) {
         printf("|");
-        for (int j =0; j<SIZE; j++) {
+        int j;
+        for (j =0; j<SIZE; j++) {
             printf(" %c |", board[i][j]);
         }
         printf("\n");
@@ -20,7 +22,8 @@ void print_board(Board board) {
 }
 
 int is_valid(Board board, int row, int col, char num) {
-    for (int i = 0; i < SIZE; i++) {
+    int i;
+    for (i = 0; i < SIZE; i++) {
         if (board[row][i] == num && i != col)return 0;
         if (board[i][col] == num && i != row)return 0;
 
@@ -40,17 +43,18 @@ int fill_board(Board board, int row, int col) {
     int nextCol = (col + 1) % SIZE;
 
     char nums[SIZE];
-    for (int i = 0; i < SIZE; i++)
+    int i;
+    for (i = 0; i < SIZE; i++)
         nums[i] = '1' + i;
 
-    for (int i = SIZE - 1; i > 0; i--) {
+    for (i = SIZE - 1; i > 0; i--) {
         int j = rand() % (i + 1);
         char tmp = nums[i];
         nums[i] = nums[j];
         nums[j] = tmp;
     }
 
-    for (int i = 0; i < SIZE; i++) {
+    for (i = 0; i < SIZE; i++) {
         if (is_valid(board, row, col, nums[i])) {
             board[row][col] = nums[i];
             if (fill_board(board, nextRow, nextCol))
