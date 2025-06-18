@@ -1,120 +1,111 @@
 #include <stdio.h>
+
+// Allegro includes
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_primitives.h>
+// Game source files
+#include "src/states/room.h"
 #include "src/game.c"
 #include "src/utils.c"
-
-const float FPS = 90;
+// Screen and FPS constants
+const float FPS = 60;
 const int SCREEN_W = 1024;
 const int SCREEN_H = 768;
 
 int main(int argc, char **argv)
 {
-    ALLEGRO_DISPLAY *display = NULL;
-    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
-    ALLEGRO_TIMER *timer = NULL;
+    //
+    //      Basic Allegro initialization
+    //
+    al_init();                        // Initialize core Allegro
+    al_init_font_addon();            // Built-in font support
+    al_init_image_addon();           // Image loading support
+    al_init_primitives_addon();      // Drawing primitives (rects, lines, etc.)
+    al_install_keyboard();           // Keyboard input
+    al_install_mouse();              // Mouse input
 
     //
-    //      Basic errors
+    //      Display and core object creation
     //
+    al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_WINDOWED); // Must be set BEFORE display creation
+    ALLEGRO_DISPLAY *display = al_create_display(SCREEN_W, SCREEN_H);   // Create the window
+    ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();        // Create the event queue
+    ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);                 // Timer for consistent FPS
+    ALLEGRO_FONT *font = al_create_builtin_font();                     // Built-in default font
 
-    if (!al_init())
-    {
-        fprintf(stderr, "failed to initialize allegro!\n");
-        return -1;
-    }
-
-    timer = al_create_timer(1.0 / FPS);
-    if (!timer)
-    {
-        fprintf(stderr, "failed to create timer!\n");
-        return -1;
-    }
-
-    bool redraw = true;
-    al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_WINDOWED);
-    display = al_create_display(SCREEN_W, SCREEN_H);
-
-    if (!display)
-    {
-        fprintf(stderr, "failed to create display!\n");
-        al_destroy_timer(timer);
-        return -1;
-    }
-
-    if (!al_install_keyboard())
-    {
-        fprintf(stderr, "failed to initialize the keyboard!\n");
-        return -1;
-    }
-
-    if (!al_install_mouse())
-    {
-        fprintf(stderr, "failed to initialize the mouse!\n");
-        return -1;
-    }
-
-    if (!al_init_image_addon())
-    {
-        fprintf(stderr, "failed to initialize the image addon!\n");
-        return -1;
-    }
-
-    //
-    //      Basic bitmaps and vars
-    //
-
-    int click = 0;
-    int savebvx;
-    int savebvy;
-
-    //
-    //      Problems with bitmaps and events
-    //
-    
+    // Set render target to the screen's backbuffer
     al_set_target_bitmap(al_get_backbuffer(display));
 
-    event_queue = al_create_event_queue();
-    if (!event_queue)
-    {
-        fprintf(stderr, "failed to create event_queue!\n");
-        al_destroy_display(display);
-        al_destroy_timer(timer);
-        return -1;
-    }
-
+    // Register event sources
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
     al_register_event_source(event_queue, al_get_keyboard_event_source());
     al_register_event_source(event_queue, al_get_mouse_event_source());
 
+    //
+    //      Initial screen clear
+    //
     al_clear_to_color(al_map_rgb(0, 0, 0));
     al_flip_display();
     al_start_timer(timer);
 
     //
-    //      Events Listening
+    //      Redraw is used to prevent unnecessary visual updates
     //
+    bool redraw = true;
 
+    //
+    //      Click flag tracks whether the screen was clicked
+    //      savebvx and savebvy store mouse coordinates
+    //
+    int click = 0;
+    int savebvx;
+    int savebvy;
+
+    //
+    //      Game vars
+    //
+    
+    // saves the current room the game is in
+    GameRoom actual_room = ROOM_MENU;
+    // saves the current menu option the game is in
+    MenuOption actual_menu_option = MENU_OPTION_START;
+    
     while (1)
     {
+        //
+        //      Event listener
+        //
         ALLEGRO_EVENT ev;
         al_wait_for_event(event_queue, &ev);
 
+        //      Close window event
         if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
         {
             break;
         }
 
+        //      Timer event signals it's time to redraw
+        if (ev.type == ALLEGRO_EVENT_TIMER)
+        {
+            redraw = true;
+        }
+
+        //      Redraw only if needed and event queue is empty
         if (redraw && al_is_event_queue_empty(event_queue))
         {
             redraw = false;
-
-            al_clear_to_color(al_map_rgb(0, 100, 0));
+            al_clear_to_color(al_map_rgb(0, 0, 0));
             al_flip_display();
         }
     }
 
+    //
+    //      Destroy Allegro objects
+    //
+    al_destroy_font(font);
     al_destroy_timer(timer);
     al_destroy_display(display);
     al_destroy_event_queue(event_queue);
