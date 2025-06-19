@@ -488,12 +488,17 @@
 	<allegro5/allegro.h>
 	<allegro5/allegro_image.h>
 
-1750220831 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
+1750372529 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
 	<stdio.h>
 	<allegro5/allegro.h>
 	<allegro5/allegro_image.h>
-	"src/game.c"
-	"src/utils.c"
+	<allegro5/allegro_font.h>
+	<allegro5/allegro_color.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_primitives.h>
+	"src/states/room.h"
+	"src/draw/draw_rooms.h"
+	"src/config.h"
 
 1750218625 c:\users\dell\documents\codeblocksproject\scdoku\src\game.c
 	"sudoku.c"
@@ -506,4 +511,50 @@
 
 1750218625 c:\users\dell\documents\codeblocksproject\scdoku\src\utils.c
 	<stdlib.h>
+
+1372639132 c:\allegro\allegromingw\include\allegro5\allegro_font.h
+	"allegro5/allegro.h"
+
+1372639132 c:\allegro\allegromingw\include\allegro5\allegro_primitives.h
+	<allegro5/allegro.h>
+
+1750358158 c:\users\dell\documents\codeblocksproject\scdoku\src\states\room.h
+
+1750268658 c:\users\dell\documents\codeblocksproject\scdoku\src\game\game.h
+	"sudoku.h"
+
+1750268052 c:\users\dell\documents\codeblocksproject\scdoku\src\game\sudoku.h
+
+1750270254 c:\users\dell\documents\codeblocksproject\scdoku\src\draw\menus.h
+	<allegro5/allegro.h>
+	<allegro5/allegro_font.h>
+	"../states/room.h"
+
+1362338300 c:\allegro\allegromingw\include\allegro5\allegro_ttf.h
+	"allegro5/allegro.h"
+	"allegro5/allegro_font.h"
+
+1750372449 c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.h
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_primitives.h>
+
+1750372987 source:c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.c
+	<stdbool.h>
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_font.h>
+	<allegro5/allegro_color.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_primitives.h>
+	"../config.h"
+
+1750268237 source:c:\users\dell\documents\codeblocksproject\scdoku\src\game\game.c
+	"sudoku.h"
+
+1750373806 c:\users\dell\documents\codeblocksproject\scdoku\src\config.h
+
+1372639132 c:\allegro\allegromingw\include\allegro5\allegro_color.h
+	"allegro5/allegro.h"
 

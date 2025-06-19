@@ -1,0 +1,12 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#define VIRTUAL_W 900
+#define VIRTUAL_H 600
+extern ALLEGRO_DISPLAY *display;
+extern ALLEGRO_EVENT_QUEUE *event_queue;
+extern ALLEGRO_TIMER *timer;
+extern ALLEGRO_BITMAP *virtual_screen;
+#define FPS 60
+
+#endif
