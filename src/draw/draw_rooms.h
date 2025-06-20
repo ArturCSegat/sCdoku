@@ -5,6 +5,7 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
+#include "../states/states.h"
 
 void init_font();
 void destroy_font();
@@ -13,6 +14,6 @@ void init_color();
 void draw_menu_room(int mouseX, int mouseY);
 void draw_config_room(int mouseX, int mouseY);
 void draw_difficulty_room(int mouseX, int mouseY);
-void draw_game_room(int mouseX, int mouseY);
+void draw_game_room(int mouseX, int mouseY, GameState *gameState);
 
 #endif

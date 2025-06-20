@@ -7,7 +7,7 @@
 #include <allegro5/allegro_primitives.h>
 
 #include "../config.h"
-#include "../states/room.h"
+#include "../states/states.h"
 
 int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room){
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
@@ -125,6 +125,28 @@ Difficulty handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int log
     return DIFFICULTY_NONE;
 }
 
-int handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room) {
+void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState) {
+    if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
+        const int GRID_SIZE = 9;
+        const int CELL_SIZE = 50;
+        int gridWidth = GRID_SIZE * CELL_SIZE;
+        int gridHeight = GRID_SIZE * CELL_SIZE;
 
+        // Posição inicial da grade (centralizada)
+        int startX = (VIRTUAL_W - gridWidth) / 2;
+        int startY = (VIRTUAL_H - gridHeight) / 2;
+
+        // Verifica se o clique foi dentro da grade
+        if (logicalMouseX >= startX && logicalMouseX < startX + gridWidth &&
+            logicalMouseY >= startY && logicalMouseY < startY + gridHeight) {
+
+            // Calcula linha e coluna clicadas
+            int col = (logicalMouseX - startX) / CELL_SIZE;
+            int row = (logicalMouseY - startY) / CELL_SIZE;
+
+            // Armazena a célula selecionada
+            gameState->selectedRow = row;
+            gameState->selectedCol = col;
+        }
+    }
 }

@@ -109,6 +109,13 @@
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/control/handle.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/draw/draw_rooms.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/draw/draw_rooms.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

@@ -1,5 +1,5 @@
-#ifndef ROOM_H
-#define ROOM_H
+#ifndef STATES_H
+#define STATES_H
 
 //
 //  State room enum
@@ -19,5 +19,10 @@ typedef enum {
     DIFFICULTY_MEDIUM = 1,
     DIFFICULTY_HARD = 2
 } Difficulty;
+
+typedef struct {
+    int selectedRow;
+    int selectedCol;
+} GameState;
 
 #endif
