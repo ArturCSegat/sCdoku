@@ -104,17 +104,20 @@ O projeto está organizado da seguinte forma:
 
 ```
 sCdoku/
-├── README.md           # Documentação do projeto
-├── main.c              # Ponto de entrada do programa e configuração da interface gráfica
+├── README.md               # Documentação do projeto
+├── main.c                  # Ponto de entrada do programa e configuração da interface gráfica
 ├── src/
 │   ├── control/
-│   │   └── handle.c   # Gerenciamento de eventos e interações do usuário
-│   ├── game.c         # Lógica do jogo e estrutura de dados
-│   ├── sudoku.c       # Implementação do algoritmo de Sudoku
-│   ├── utils.c        # Funções auxiliares e utilitárias
-│   └── utils.h        # Declarações das funções auxiliares
-├── assets/            # Recursos gráficos e fontes
-└── include/           # Arquivos de cabeçalho
+│   │   └── handle.c       # Gerenciamento de eventos e interações do usuário
+│   ├── game/
+|   |   └── game.c         # Lógica do Jogo
+|   |   └── sudoku.c       # Estruturas de dados
+|   ├── draw/
+|   |   └── draw_rooms.c   # Foco em desenhar as salas
+|   ├── states/
+|   |   └── room.c         # Estrutura de dado para controle da sala
+├── assets/                # Recursos gráficos e fontes
+└── include/               # Arquivos de cabeçalho
 ```
 
 ### Descrição dos Componentes
