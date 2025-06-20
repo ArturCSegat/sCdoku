@@ -99,10 +99,33 @@ $ ./sudoku.out
    - Um jogador consegue mais pontos que o outro e completa o tabuleiro
 
 ## Estrutura do Projeto
-- `main.c`: Ponto de entrada do programa e configuração da interface gráfica
-- `src/game.c`: Lógica do jogo e estrutura de dados
-- `src/sudoku.c`: Implementação do algoritmo de Sudoku
-- `src/utils.c`: Funções auxiliares e utilitárias
+
+O projeto está organizado da seguinte forma:
+
+```
+sCdoku/
+├── README.md           # Documentação do projeto
+├── main.c              # Ponto de entrada do programa e configuração da interface gráfica
+├── src/
+│   ├── control/
+│   │   └── handle.c   # Gerenciamento de eventos e interações do usuário
+│   ├── game.c         # Lógica do jogo e estrutura de dados
+│   ├── sudoku.c       # Implementação do algoritmo de Sudoku
+│   ├── utils.c        # Funções auxiliares e utilitárias
+│   └── utils.h        # Declarações das funções auxiliares
+├── assets/            # Recursos gráficos e fontes
+└── include/           # Arquivos de cabeçalho
+```
+
+### Descrição dos Componentes
+
+- `main.c`: Contém a função principal e a configuração inicial da interface gráfica usando Allegro5
+- `src/control/handle.c`: Gerencia eventos de entrada do usuário, como cliques e teclas
+- `src/game.c`: Implementa a lógica do jogo, incluindo turnos e pontuação
+- `src/sudoku.c`: Contém o algoritmo de geração e validação do tabuleiro de Sudoku
+- `src/utils.c`: Funções auxiliares para operações comuns, como validação de números e geração de números aleatórios
+- `assets/`: Diretório para armazenar recursos gráficos, como imagens e fontes
+- `include/`: Diretório para arquivos de cabeçalho (.h) que definem as interfaces das funções e estruturas de dados
 
 ## Dicas para Desenvolvimento
 - Use o GCC com flags de otimização para melhor performance:

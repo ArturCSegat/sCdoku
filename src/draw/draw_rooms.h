@@ -9,7 +9,10 @@
 void init_font();
 void destroy_font();
 void init_color();
+
 void draw_menu_room(int mouseX, int mouseY);
 void draw_config_room(int mouseX, int mouseY);
+void draw_difficulty_room(int mouseX, int mouseY);
+void draw_game_room(int mouseX, int mouseY);
 
 #endif

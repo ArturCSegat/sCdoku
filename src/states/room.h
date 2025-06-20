@@ -8,22 +8,16 @@ typedef enum {
     ROOM_INTRO,
     ROOM_MENU,
     ROOM_CONFIG,
-    ROOM_GAME
+    ROOM_GAME,
+    ROOM_DIFFICULTY
 } GameRoom;
 
-//
-// State menu vars basic
-//
-typedef enum {
-    MENU_OPTION_START,
-    MENU_OPTION_CONFIG,
-    MENU_OPTION_EXIT
-} MenuOption;
 
 typedef enum {
-    DIFFICULTY_EASY,
-    DIFFICULTY_MEDIUM,
-    DIFFICULTY_HARD
+    DIFFICULTY_NONE = -1, // just for default value
+    DIFFICULTY_EASY = 0,
+    DIFFICULTY_MEDIUM = 1,
+    DIFFICULTY_HARD = 2
 } Difficulty;
 
 #endif

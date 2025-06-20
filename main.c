@@ -5,17 +5,17 @@
 #include <allegro5/allegro_color.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
-
-
 #include "src/states/room.h"
 #include "src/draw/draw_rooms.h"
+#include "src/control/handle.h"
 #include "src/config.h"
+
+GameRoom current_room;
 
 ALLEGRO_DISPLAY *display = NULL;
 ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 ALLEGRO_TIMER *timer = NULL;
 ALLEGRO_BITMAP *virtual_screen = NULL;
-
 
 bool init_allegro();
 void init_vars();
@@ -48,76 +48,30 @@ int main(int argc, char **argv)
             mouseY = ev.mouse.y;    //      Track mouse movement events, store physical mouse position
         }
 
-        if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
-            // Handle clicks in menu room
-            if (current_room == ROOM_MENU) {
-                const int BUTTON_WIDTH = 200;
-                const int BUTTON_HEIGHT = 40;
-                const int BUTTON_PADDING = 10;
-                const int LEFT_MARGIN = 30;
-                const int NUM_BUTTONS = 3;
-
-                int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
-                int firstButtonY = (VIRTUAL_H - totalMenuHeight) / 2;
-                int buttonX = LEFT_MARGIN;
-
-                // Check if click was on CONFIG button (index 1)
-                int configButtonY = firstButtonY + 1 * (BUTTON_HEIGHT + BUTTON_PADDING);
-                if (logicalMouseX >= buttonX &&
-                    logicalMouseX <= buttonX + BUTTON_WIDTH &&
-                    logicalMouseY >= configButtonY &&
-                    logicalMouseY <= configButtonY + BUTTON_HEIGHT) {
-                    current_room = ROOM_CONFIG;
-                }
-                // Check if click was on EXIT button (index 2)
-                int exitButtonY = firstButtonY + 2 * (BUTTON_HEIGHT + BUTTON_PADDING);
-                if (logicalMouseX >= buttonX &&
-                    logicalMouseX <= buttonX + BUTTON_WIDTH &&
-                    logicalMouseY >= exitButtonY &&
-                    logicalMouseY <= exitButtonY + BUTTON_HEIGHT) {
-                    // Exit the program
+        //      Handle events based on current room
+        switch(current_room) {
+            case ROOM_MENU:         //      Menu room
+                if(!handle_menu_events(ev, logicalMouseX, logicalMouseY, &current_room)){
+                    al_destroy_display(display);
+                    al_destroy_event_queue(event_queue);
+                    al_destroy_timer(timer);
+                    destroy_font();
                     return 0;
                 }
+                break;
+        
+            case ROOM_CONFIG:       //      Config room
+                handle_config_events(ev, logicalMouseX, logicalMouseY, &current_room, &is_fullscreen);
+                break;
+        
+            case ROOM_DIFFICULTY: { //      Difficulty room
+                Difficulty selected_difficulty = handle_difficulty_events(ev, logicalMouseX, logicalMouseY, &current_room);
+                break;
             }
-            // Handle clicks in config room
-            else if (current_room == ROOM_CONFIG) {
-                // Button constants
-                const int BUTTON_WIDTH = 300;
-                const int BUTTON_HEIGHT = 40;
-                const int BUTTON_PADDING = 10;
-                const int LEFT_MARGIN = 30;
-                const int NUM_BUTTONS = 2;
 
-                int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
-                int firstButtonY = (VIRTUAL_H - totalMenuHeight) / 2;
-                int buttonX = LEFT_MARGIN;
-
-                // Check if click was on FULL SCREEN button (index 0)
-                int fullScreenButtonY = firstButtonY;
-                if (logicalMouseX >= buttonX &&
-                    logicalMouseX <= buttonX + BUTTON_WIDTH &&
-                    logicalMouseY >= fullScreenButtonY &&
-                    logicalMouseY <= fullScreenButtonY + BUTTON_HEIGHT) {
-                    // Toggle fullscreen mode
-                    is_fullscreen = !is_fullscreen; // alterna estado
-                    al_toggle_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, is_fullscreen);
-
-                    destroy_font();
-                    init_font();
-
-                    if(!is_fullscreen){
-                        al_set_window_position(display, 0, 0);
-                    }
-                }
-                // Check if click was on BACK button (index 1)
-                int backButtonY = firstButtonY + (BUTTON_HEIGHT + BUTTON_PADDING);
-                if (logicalMouseX >= buttonX &&
-                    logicalMouseX <= buttonX + BUTTON_WIDTH &&
-                    logicalMouseY >= backButtonY &&
-                    logicalMouseY <= backButtonY + BUTTON_HEIGHT) {
-                    current_room = ROOM_MENU;
-                }
-            }
+            case ROOM_GAME:         //      Game room
+                handle_game_events(ev, logicalMouseX, logicalMouseY, &current_room);
+                break;
         }
 
         //      Redraw only if needed and event queue is empty
@@ -153,20 +107,24 @@ int main(int argc, char **argv)
             //      Draw according to the current game room
             switch (current_room)
             {
-                case ROOM_INTRO:
+                case ROOM_INTRO:        //      Intro room
                     // Intro Animation and start (not implemented)
                     break;
 
-                case ROOM_MENU:
+                case ROOM_MENU:         //      Menu room
                     draw_menu_room(logicalMouseX, logicalMouseY);
                     break;
 
-                case ROOM_CONFIG:
+                case ROOM_DIFFICULTY:   //      Difficulty room
+                    draw_difficulty_room(logicalMouseX, logicalMouseY);
+                    break;
+
+                case ROOM_CONFIG:       //      Config room
                     draw_config_room(logicalMouseX, logicalMouseY);
                     break;
 
-                case ROOM_GAME:
-                    // Game loop (not implemented)
+                case ROOM_GAME:         //      Game room
+                    draw_game_room(logicalMouseX, logicalMouseY);
                     break;
             }
 
