@@ -1,8 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include "sudoku.h"
+#include <string.h>
+#include <math.h>
+#include <stdio.h>
 
+typedef char** Board;
+
+// create a board
 Board create_board(int size) {
     Board board = malloc(size * sizeof(char*));
     int i;
@@ -13,6 +16,7 @@ Board create_board(int size) {
     return board;
 }
 
+// 
 void free_board(Board board, int size) {
     int i;
     for (i = 0; i < size; i++) {

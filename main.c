@@ -9,6 +9,7 @@
 #include "src/draw/draw_rooms.h"
 #include "src/control/handle.h"
 #include "src/config.h"
+#include "src/game/game.h"
 
 // Global variables for game state management
 GameRoom current_room;  // Current game room state
@@ -37,8 +38,8 @@ int main(int argc, char **argv)
 
     // Initialize game state
     current_room = ROOM_MENU;        // Start in menu room
-    GameState gameState = { -1, -1 }; // Initialize game state
-
+    GameState gameState = { -1, -1 , {{false}}}; // Initialize game state
+    Game game;
     // Main game loop
     while (1)
     {
@@ -75,12 +76,26 @@ int main(int argc, char **argv)
             case ROOM_DIFFICULTY: 
             {                       // Difficulty room
                 Difficulty selected_difficulty = handle_difficulty_events(ev, logicalMouseX, logicalMouseY, &current_room);
+                if (selected_difficulty != DIFFICULTY_NONE) {
+                    int to_remove;
+                    switch (selected_difficulty) {
+                        case DIFFICULTY_EASY: to_remove = 30; break;
+                        case DIFFICULTY_MEDIUM: to_remove = 45; break;
+                        case DIFFICULTY_HARD: to_remove = 60; break;
+                        default: to_remove = 45;
+                    }
+
+                    game = new_game(9, to_remove); // tamanho 9x9
+                    printf("Jogo criado\n");
+                    selected_difficulty = DIFFICULTY_NONE;
+                    current_room = ROOM_GAME;
+                }
                 break;
             }
 
             case ROOM_GAME: 
             {                       // Game room
-                handle_game_events(ev, logicalMouseX, logicalMouseY, &gameState);
+                handle_game_events(ev, logicalMouseX, logicalMouseY, &gameState, &game);
                 break;
             }
         }
@@ -117,9 +132,6 @@ int main(int argc, char **argv)
             al_set_target_bitmap(virtual_screen);
             al_clear_to_color(al_map_rgb(0, 0, 0));
 
-            // Debug: Draw mouse position indicator
-            al_draw_filled_circle(logicalMouseX, logicalMouseY, 5, al_map_rgb(255, 0, 0));
-
             // Draw current game room
             switch (current_room)
             {
@@ -140,7 +152,7 @@ int main(int argc, char **argv)
                     break;
 
                 case ROOM_GAME:         // Game room
-                    draw_game_room(logicalMouseX, logicalMouseY, &gameState);
+                    draw_game_room(logicalMouseX, logicalMouseY, &gameState, &game);
                     break;
             }
 
@@ -202,7 +214,7 @@ bool init_allegro() {
         return false;
     }
 
-    al_set_new_display_flags(ALLEGRO_WINDOWED);
+    al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_WINDOWED);
 
     init_vars();
     register_events();
