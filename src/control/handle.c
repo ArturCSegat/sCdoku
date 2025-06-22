@@ -13,8 +13,9 @@
 #include "../draw/draw_rooms.h"
 
 #ifdef _WIN32
+#include "../online/online_win.h"
 #else
-#include <sys/socket.h>
+#include "../online/online_unix.h"
 #endif
 
 int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room){
@@ -132,7 +133,7 @@ Difficulty handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int log
     return DIFFICULTY_NONE;
 }
 
-void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, Game *game, int opp) {
+void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, Game *game, ON_SOCK opp) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
         const int GRID_SIZE = 9;
         const int CELL_SIZE = 50;
@@ -171,7 +172,7 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
                 }
 
                 if (result == 1) {
-                    send(opp, "val", 3, 0);
+                    online_send(opp, "val", 3);
                 }
             }
 

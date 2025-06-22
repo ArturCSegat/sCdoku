@@ -21,7 +21,6 @@
 #include "src/online/online_win.h"
 #else
 #include "src/online/online_unix.h"
-#include <sys/socket.h>
 #endif
 
 // Global variables for game state management
@@ -46,7 +45,7 @@ int main(int argc, char **argv)
     scanf("%d", &online);
     char ip[15];
     
-    int opponent;
+    ON_SOCK opponent;
     bool is_admin = false;
     if (online) {
         printf("entre com o ip do seu oponente ex: 127.0.0.1\n");
@@ -83,7 +82,7 @@ int main(int argc, char **argv)
     if (!is_admin) {
         // o servo espera o admin entrar no ROOM_GAME e n decide nada
         char b[SIZE*SIZE*2]; // vai receber 2 tabs um sendo o gab
-        recv(opponent, b, SIZE*SIZE*2, 0); // blocking read
+        online_recv(opponent, b, SIZE*SIZE*2); // blocking read
         game.b = create_board(SIZE);
         game.gab = create_board(SIZE);
         game.size = SIZE;
@@ -105,8 +104,7 @@ int main(int argc, char **argv)
         current_room = ROOM_GAME;
 
         // agr q os dois tão sincronizados não quero mais que eles esperem um pelo outro, quero q os reads sejam sem block
-        int op_flags = fcntl(opponent, F_GETFL); 
-        fcntl(opponent, F_SETFL, op_flags | O_NONBLOCK); 
+        set_to_nonblock(opponent);
         done = true;
     }
 
@@ -124,11 +122,10 @@ int main(int argc, char **argv)
         if (ev.type == ALLEGRO_EVENT_TIMER) {
             if (online && done) {
                 #ifndef _WIN32
-                recv(opponent, opmsg, 3, 0);
+                online_recv(opponent, opmsg, 3);
                 #endif
                 if (strncmp(opmsg, "val", 3) == 0) {
                     printf("o oponente acertou uma\n");
-                    fflush(stdin);
                     memset(opmsg, 0, 3);
                 }
             }
@@ -182,11 +179,10 @@ int main(int argc, char **argv)
                                 msg[(SIZE*SIZE) + i*SIZE + j] = game.gab[i][j];
                             }
                         }
-                        send(opponent, msg, SIZE*SIZE*2, 0);
+                        online_send(opponent, msg, SIZE*SIZE*2);
 
                         // agr q os dois tão sincronizados não quero mais que eles esperem um pelo outro, quero q os reads sejam sem block
-                        int op_flags = fcntl(opponent, F_GETFL); 
-                        fcntl(opponent, F_SETFL, op_flags | O_NONBLOCK); 
+                        set_to_nonblock(opponent);
                         done = true;
                     }
 

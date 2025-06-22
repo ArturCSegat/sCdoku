@@ -8,8 +8,8 @@
 #include <fcntl.h>
 
 #define PORT 6969
-int connect_to(char ip[]) {
-    int sock;
+ON_SOCK connect_to(char ip[]) {
+    ON_SOCK sock;
 
     // Create socket
     sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -33,7 +33,7 @@ int connect_to(char ip[]) {
     }
 }
 
-int get_oponnent() {
+ON_SOCK get_oponnent() {
         struct sockaddr_in addr;
         addr.sin_family = AF_INET;
         addr.sin_port = htons(PORT);
@@ -64,6 +64,18 @@ int get_oponnent() {
             perror("accept");
             exit(EXIT_FAILURE);
         }
-        return client_sock;
+        return (ON_SOCK)client_sock;
 }
 
+void online_send(ON_SOCK sock, const char msg[], int n) {
+    send(sock, msg, n, 0);
+}
+
+void online_recv(ON_SOCK sock, char msg[], int n) {
+    recv(sock, msg, n, 0);
+}
+
+void set_to_nonblock(ON_SOCK sock) {
+    int op_flags = fcntl(sock, F_GETFL); 
+    fcntl(sock, F_SETFL, op_flags | O_NONBLOCK); 
+}
