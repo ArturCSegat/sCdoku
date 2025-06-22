@@ -53,6 +53,7 @@ int main(int argc, char **argv)
         opponent = connect_to(ip);
         printf("opponent: %d\n", opponent);
         if (opponent==(-1)) {
+            printf("admin\n");
             opponent = get_oponnent(); // blocking
             is_admin = true;
         }

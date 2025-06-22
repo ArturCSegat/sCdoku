@@ -75,12 +75,12 @@ ON_SOCK get_oponnent() {
     return client_sock;
 }
 
-void online_send(ON_SOCK sock, const char msg[], int n) {
-    send(sock, msg, n, 0);
+int online_send(ON_SOCK sock, const char msg[], int n) {
+    return send(sock, msg, n, 0);
 }
 
-void online_recv(ON_SOCK sock, char msg[], int n) {
-    recv(sock, msg, n, 0);
+int online_recv(ON_SOCK sock, char msg[], int n) {
+    return recv(sock, msg, n, 0);
 }
 
 void set_to_nonblock(ON_SOCK sock) {
