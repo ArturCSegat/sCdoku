@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
@@ -9,6 +10,7 @@
 #include "../config.h"
 #include "../states/states.h"
 #include "../game/game.h"
+#include "../draw/draw_rooms.h"
 
 int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room){
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
@@ -127,6 +129,7 @@ Difficulty handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int log
 
 void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, Game *game) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
+        printf("ola mundo\n");
         const int GRID_SIZE = 9;
         const int CELL_SIZE = 50;
         int gridWidth = GRID_SIZE * CELL_SIZE;
