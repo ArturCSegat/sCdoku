@@ -16,6 +16,7 @@ typedef struct {
     int to_remove;
     int left;
     Board b;
+    Board gab;
 } Game;
 
 Game new_game(int size, int to_remove);

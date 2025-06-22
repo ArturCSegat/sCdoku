@@ -29,6 +29,7 @@ ALLEGRO_COLOR lineGradeColor; // Box color when selected
 ALLEGRO_COLOR grayColor;   // Box color when selected
 ALLEGRO_COLOR numberColor;   // Box color when selected
 ALLEGRO_COLOR errorBoxColor;   // Box color when selected
+ALLEGRO_COLOR errorTextColor;   // Box color when selected
 
 // Font resources
 ALLEGRO_FONT *font;               // Regular font
@@ -59,7 +60,8 @@ void init_color(){
     sameLineColumnColor = al_map_rgb(31, 33, 46);
     lineGradeColor = al_map_rgb(2, 5, 1);
     numberColor = al_map_rgb(176, 180, 208);
-    errorBoxColor = al_map_rgb(255, 80, 80);
+    errorBoxColor = al_map_rgb(91,55,66);
+    errorTextColor = al_map_rgb(186,83,92);
 }
 
 // Draw the main menu room
@@ -322,6 +324,7 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game) {
             al_draw_filled_rectangle(selX, selY, selX + CELL_SIZE, selY + CELL_SIZE, selectedBoxColor);
         }
     }
+    // Verifica quais caixas possuem erros e printa caixa vermelha
     for (row = 0; row < GRID_SIZE; row++) {
         for (col = 0; col < GRID_SIZE; col++) {
             int x = startX + col * CELL_SIZE;
@@ -346,6 +349,7 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game) {
                      lineGradeColor, (i % 3 == 0) ? 3 : 1);
     }
 
+    // printa os numeros
     for (row = 0; row < GRID_SIZE; row++) {
         for (col = 0; col < GRID_SIZE; col++) {
             char value = game->b[row][col];
@@ -356,7 +360,11 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game) {
                 int y = startY + (row * CELL_SIZE) + CELL_SIZE / 4;
 
                 char text[2] = { value, '\0' };
-                al_draw_text(fontNumber, numberColor, x, y, ALLEGRO_ALIGN_CENTER, text);
+                ALLEGRO_COLOR color = numberColor;
+                if (gameState->errors[row][col] && selectedRow == row && selectedCol == col) {
+                    color = errorTextColor;
+                }
+                al_draw_text(fontNumber, color, x, y, ALLEGRO_ALIGN_CENTER, text);
             }
         }
     }

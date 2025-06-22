@@ -132,43 +132,46 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
         int gridWidth = GRID_SIZE * CELL_SIZE;
         int gridHeight = GRID_SIZE * CELL_SIZE;
 
-        // Posição inicial da grade (centralizada)
         int startX = (VIRTUAL_W - gridWidth) / 2;
         int startY = (VIRTUAL_H - gridHeight) / 2;
 
-        // Verifica se o clique foi dentro da grade
         if (logicalMouseX >= startX && logicalMouseX < startX + gridWidth &&
             logicalMouseY >= startY && logicalMouseY < startY + gridHeight) {
 
-            // Calcula linha e coluna clicadas
             int col = (logicalMouseX - startX) / CELL_SIZE;
             int row = (logicalMouseY - startY) / CELL_SIZE;
 
-            // Armazena a célula selecionada
             gameState->selectedRow = row;
             gameState->selectedCol = col;
         }
     }
+
     if (ev.type == ALLEGRO_EVENT_KEY_CHAR) {
-        if (gameState->selectedRow >= 0 && gameState->selectedCol >= 0) {
+        int row = gameState->selectedRow;
+        int col = gameState->selectedCol;
+
+        if (row >= 0 && col >= 0) {
             char key = ev.keyboard.unichar;
 
             if (key >= '1' && key <= '9') {
-                Move m = move(key, gameState->selectedRow, gameState->selectedCol);
-                if (play(m, game) == 1) {
-                    gameState->errors[m.row][m.col] = false;
-                    gameState->attempts[m.row][m.col] = m.v;
-                } else {
-                    gameState->errors[m.row][m.col] = true;
-                    gameState->attempts[m.row][m.col] = m.v;
+                Move m = move(key, row, col);
+                int result = play(m, game);
+
+                // Só atualiza visualmente se a jogada for aceita (mesmo correta ou incorreta)
+                if (result == 1 || game->b[row][col] == key) {
+                    gameState->attempts[row][col] = key;
+                    gameState->errors[row][col] = (key != game->gab[row][col]);
                 }
             }
 
             if (key == ALLEGRO_KEY_BACKSPACE || key == '0') {
-                Move m = move(EMPTY, gameState->selectedRow, gameState->selectedCol);
-                play(m, game);
-                gameState->errors[m.row][m.col] = false;
-                gameState->attempts[m.row][m.col] = EMPTY;
+                // Evita apagar números fixos
+                if (game->gab[row][col] != game->b[row][col]) {
+                    Move m = move(EMPTY, row, col);
+                    play(m, game);
+                    gameState->errors[row][col] = false;
+                    gameState->attempts[row][col] = EMPTY;
+                }
             }
         }
     }

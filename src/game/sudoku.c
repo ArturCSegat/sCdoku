@@ -78,8 +78,16 @@ void remove_cells(Board board, int size, int holes) {
     }
 }
 
-void generate_sudoku(Board board, int size, int to_remove) {
+Board generate_sudoku(Board board, int size, int to_remove) {
     srand(time(NULL));
     fill_board(board, size, 0, 0);
+    int i,j;
+    Board gab = create_board(size);
+    for (i = 0; i < size; i++) {
+        for (j = 0; j < size; j++) {
+            gab[i][j] = board[i][j];
+        }
+    }
     remove_cells(board, size, to_remove);
+    return gab;
 }

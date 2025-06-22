@@ -4,22 +4,22 @@
 
 // create new game
 Game new_game(int size, int to_remove) {
-    Game g;
-    g.points = 0;
-    g.lifes = 5;
-    g.size = size;
-    g.to_remove = to_remove;
+    Game game;
+    game.points = 0;
+    game.lifes = 5;
+    game.size = size;
+    game.to_remove = to_remove;
 
-    g.b = create_board(size);
-    generate_sudoku(g.b, size, to_remove);
-    g.left = to_remove;
+    game.b = create_board(size);
+    game.gab = generate_sudoku(game.b, size, to_remove);
+    game.left = to_remove;
 
-    return g;
+    return game;
 }
 
 // free game memory
-void destroy_game(Game* g) {
-    free_board(g->b, g->size);
+void destroy_game(Game* game) {
+    free_board(game->b, game->size);
 }
 
 // make move function
@@ -32,18 +32,26 @@ Move move(char val, int row, int col) {
 }
 
 // do a move and verify if the player lose life or not
-int play(Move m, Game* g) {
-    if (m.row < 0 || m.row >= g->size || m.col < 0 || m.col >= g->size)
+int play(Move m, Game* game) {
+    if (m.row < 0 || m.row >= game->size || m.col < 0 || m.col >= game->size)
         return 0;
 
-    if (g->b[m.row][m.col] != EMPTY)
+    // Impede sobrescrever os números fixos do jogo (ou seja, não removidos)
+    if (game->gab[m.row][m.col] == game->b[m.row][m.col])
         return 0;
 
-    if (is_valid(g->b, g->size, m.row, m.col, m.v)) {
-        g->b[m.row][m.col] = m.v;
-        g->left--;
+    // Se estiver correto
+    if (m.v == game->gab[m.row][m.col]) {
+        // Se antes estava errado (não EMPTY e diferente do correto), não decrementa `left`
+        if (game->b[m.row][m.col] != game->gab[m.row][m.col])
+            game->left--;
+
+        game->b[m.row][m.col] = m.v;
         return 1;
     }
-    g->lifes--;
+
+    // Se estiver errado, ainda salva na grade
+    game->b[m.row][m.col] = m.v;
+    game->lifes--;
     return 0;
 }

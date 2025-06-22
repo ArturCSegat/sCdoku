@@ -8,6 +8,6 @@ typedef char** Board;
 Board create_board(int size);
 void free_board(Board board, int size);
 int is_valid(Board board, int size, int row, int col, char num);
-void generate_sudoku(Board board, int size, int to_remove);
+Board generate_sudoku(Board board, int size, int to_remove);
 
 #endif

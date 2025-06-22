@@ -85,8 +85,7 @@ int main(int argc, char **argv)
                         default: to_remove = 45;
                     }
 
-                    game = new_game(9, to_remove); // tamanho 9x9
-                    printf("Jogo criado\n");
+                    game = new_game(9, to_remove);
                     selected_difficulty = DIFFICULTY_NONE;
                     current_room = ROOM_GAME;
                 }
