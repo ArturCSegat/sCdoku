@@ -1,4 +1,4 @@
-#include "online_windows.h"
+#include "online_win.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -45,6 +45,7 @@ ON_SOCK get_oponnent() {
     addr.sin_port = htons(PORT);
     addr.sin_addr.s_addr = inet_addr("0.0.0.0");
 
+    printf("Teste...\n");
     SOCKET server_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (server_sock == INVALID_SOCKET) {
         perror("socket");

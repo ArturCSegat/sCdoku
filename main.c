@@ -44,28 +44,24 @@ int main(int argc, char **argv)
     int online = 0;
     scanf("%d", &online);
     char ip[15];
-    
+
     ON_SOCK opponent;
     bool is_admin = false;
     if (online) {
         printf("entre com o ip do seu oponente ex: 127.0.0.1\n");
         scanf("%s", ip);
-
-        #ifdef _WIN32
-        exit();
-        #else
         opponent = connect_to(ip);
-        if (opponent<0) {
+        printf("opponent: %d\n", opponent);
+        if (opponent==(-1)) {
             opponent = get_oponnent(); // blocking
             is_admin = true;
         }
-        #endif
 
     } else opponent = -1;
 
 
     if(!init_allegro()) return -1;
-    
+
     // Game state variables
     bool redraw = true;         // Flag to indicate when screen needs updating
     int mouseX = 0, mouseY = 0;               // Physical mouse position (window coordinates)
@@ -87,8 +83,9 @@ int main(int argc, char **argv)
         game.gab = create_board(SIZE);
         game.size = SIZE;
         int c = 0;
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
+        int i, j;
+        for (i = 0; i < SIZE; i++) {
+            for (j = 0; j < SIZE; j++) {
                 if (b[i*SIZE + j] == EMPTY) c++;
                 game.b[i][j] = b[i*SIZE + j];
             }
@@ -96,8 +93,8 @@ int main(int argc, char **argv)
         game.left = c;
 
         Board gab;
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
+        for (i = 0; i < SIZE; i++) {
+            for (j = 0; j < SIZE; j++) {
                 game.gab[i][j] = b[(SIZE*SIZE) + i*SIZE + j];
             }
         }
@@ -121,9 +118,7 @@ int main(int argc, char **argv)
 
         if (ev.type == ALLEGRO_EVENT_TIMER) {
             if (online && done) {
-                #ifndef _WIN32
                 online_recv(opponent, opmsg, 3);
-                #endif
                 if (strncmp(opmsg, "val", 3) == 0) {
                     printf("o oponente acertou uma\n");
                     memset(opmsg, 0, 3);
@@ -148,12 +143,12 @@ int main(int argc, char **argv)
                     return 0;
                 }
                 break;
-        
+
             case ROOM_CONFIG:       // Config room
                 handle_config_events(ev, logicalMouseX, logicalMouseY, &current_room, &is_fullscreen);
                 break;
-        
-            case ROOM_DIFFICULTY: 
+
+            case ROOM_DIFFICULTY:
             {                       // Difficulty room
                 Difficulty selected_difficulty = handle_difficulty_events(ev, logicalMouseX, logicalMouseY, &current_room);
                 if (selected_difficulty != DIFFICULTY_NONE) {
@@ -169,13 +164,14 @@ int main(int argc, char **argv)
 
                     if(is_admin) {
                         char msg[SIZE*SIZE*2];
-                        for (int i = 0; i < SIZE; i++) {
-                            for (int j = 0; j < SIZE; j++) {
+                        int i,j;
+                        for (i = 0; i < SIZE; i++) {
+                            for (j = 0; j < SIZE; j++) {
                                 msg[i*SIZE + j] = game.b[i][j];
                             }
                         }
-                        for (int i = 0; i < SIZE; i++) {
-                            for (int j = 0; j < SIZE; j++) {
+                        for (i = 0; i < SIZE; i++) {
+                            for (j = 0; j < SIZE; j++) {
                                 msg[(SIZE*SIZE) + i*SIZE + j] = game.gab[i][j];
                             }
                         }
@@ -192,7 +188,7 @@ int main(int argc, char **argv)
                 break;
             }
 
-            case ROOM_GAME: 
+            case ROOM_GAME:
             {                       // Game room
                 handle_game_events(ev, logicalMouseX, logicalMouseY, &gameState, &game, opponent);
                 break;
@@ -203,16 +199,16 @@ int main(int argc, char **argv)
         if (redraw && al_is_event_queue_empty(event_queue))
         {
             redraw = false;
-            
+
             // Get display dimensions
             int disp_w = al_get_display_width(display);
             int disp_h = al_get_display_height(display);
-            
+
             // Calculate scaling factors for maintaining aspect ratio
             float scaleX = (float)disp_w / VIRTUAL_W;
             float scaleY = (float)disp_h / VIRTUAL_H;
             float scale = (scaleX < scaleY) ? scaleX : scaleY;
-            
+
             // Calculate letterbox bars
             int bar_w = (int)((disp_w - VIRTUAL_W * scale) / 2);
             int bar_h = (int)((disp_h - VIRTUAL_H * scale) / 2);
@@ -336,5 +332,5 @@ void register_events(){
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
     al_register_event_source(event_queue, al_get_keyboard_event_source());
-    al_register_event_source(event_queue, al_get_mouse_event_source());    
+    al_register_event_source(event_queue, al_get_mouse_event_source());
 }

@@ -109,13 +109,28 @@
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/config.h" />
 		<Unit filename="src/control/handle.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/control/handle.h" />
 		<Unit filename="src/draw/draw_rooms.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/draw/draw_rooms.h" />
+		<Unit filename="src/game/game.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/game/game.h" />
+		<Unit filename="src/game/sudoku.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/game/sudoku.h" />
+		<Unit filename="src/online/online_win.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/online/online_win.h" />
+		<Unit filename="src/states/states.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
