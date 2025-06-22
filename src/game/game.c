@@ -1,5 +1,6 @@
 #include "sudoku.h"
 #include "game.h"
+#include <stdio.h>
 #include <stdbool.h>
 
 // create new game
@@ -33,12 +34,10 @@ Move move(char val, int row, int col) {
 
 // do a move and verify if the player lose life or not
 int play(Move m, Game* game) {
-    if (m.row < 0 || m.row >= game->size || m.col < 0 || m.col >= game->size)
-        return 0;
+    if (m.row < 0 || m.row >= game->size || m.col < 0 || m.col >= game->size) return 0;
 
     // Impede sobrescrever os números fixos do jogo (ou seja, não removidos)
-    if (game->gab[m.row][m.col] == game->b[m.row][m.col])
-        return 0;
+    if (game->gab[m.row][m.col] == game->b[m.row][m.col]) return 0;
 
     // Se estiver correto
     if (m.v == game->gab[m.row][m.col]) {

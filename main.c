@@ -1,15 +1,28 @@
+#include <fcntl.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_color.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
+#include <unistd.h>
+#include "src/game/sudoku.h"
 #include "src/states/states.h"
 #include "src/draw/draw_rooms.h"
 #include "src/control/handle.h"
 #include "src/config.h"
 #include "src/game/game.h"
+
+#define SIZE 9
+
+#ifdef _WIN32
+#include "src/online/online_win.h"
+#else
+#include "src/online/online_unix.h"
+#include <sys/socket.h>
+#endif
 
 // Global variables for game state management
 GameRoom current_room;  // Current game room state
@@ -28,6 +41,30 @@ void register_events();  // Register event handlers
 // Main function - Game entry point
 int main(int argc, char **argv)
 {
+    printf("voce quer jogar online? (1 = sim, 0 = nao)\n");
+    int online = 0;
+    scanf("%d", &online);
+    char ip[15];
+    
+    int opponent;
+    bool is_admin = false;
+    if (online) {
+        printf("entre com o ip do seu oponente ex: 127.0.0.1\n");
+        scanf("%s", ip);
+
+        #ifdef _WIN32
+        exit();
+        #else
+        opponent = connect_to(ip);
+        if (opponent<0) {
+            opponent = get_oponnent(); // blocking
+            is_admin = true;
+        }
+        #endif
+
+    } else opponent = -1;
+
+
     if(!init_allegro()) return -1;
     
     // Game state variables
@@ -36,21 +73,67 @@ int main(int argc, char **argv)
     int logicalMouseX = 0, logicalMouseY = 0; // Logical mouse position (virtual coordinates)
     bool is_fullscreen = false;               // Fullscreen mode flag
 
+
     // Initialize game state
     current_room = ROOM_MENU;        // Start in menu room
     GameState gameState = { -1, -1 , {{false}}}; // Initialize game state
     Game game;
+
+    bool done = false;
+    if (!is_admin) {
+        // o servo espera o admin entrar no ROOM_GAME e n decide nada
+        char b[SIZE*SIZE*2]; // vai receber 2 tabs um sendo o gab
+        recv(opponent, b, SIZE*SIZE*2, 0); // blocking read
+        game.b = create_board(SIZE);
+        game.gab = create_board(SIZE);
+        game.size = SIZE;
+        int c = 0;
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (b[i*SIZE + j] == EMPTY) c++;
+                game.b[i][j] = b[i*SIZE + j];
+            }
+        }
+        game.left = c;
+
+        Board gab;
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                game.gab[i][j] = b[(SIZE*SIZE) + i*SIZE + j];
+            }
+        }
+        current_room = ROOM_GAME;
+
+        // agr q os dois tão sincronizados não quero mais que eles esperem um pelo outro, quero q os reads sejam sem block
+        int op_flags = fcntl(opponent, F_GETFL); 
+        fcntl(opponent, F_SETFL, op_flags | O_NONBLOCK); 
+        done = true;
+    }
+
     // Main game loop
+    char opmsg[3] = {0};
     while (1)
     {
         ALLEGRO_EVENT ev;
         al_wait_for_event(event_queue, &ev);
 
+
         if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             break;         // Close window event
 
-        if (ev.type == ALLEGRO_EVENT_TIMER)
+        if (ev.type == ALLEGRO_EVENT_TIMER) {
+            if (online && done) {
+                #ifndef _WIN32
+                recv(opponent, opmsg, 3, 0);
+                #endif
+                if (strncmp(opmsg, "val", 3) == 0) {
+                    printf("o oponente acertou uma\n");
+                    fflush(stdin);
+                    memset(opmsg, 0, 3);
+                }
+            }
             redraw = true; // Timer event signals it's time to redraw
+        }
 
         if (ev.type == ALLEGRO_EVENT_MOUSE_AXES || ev.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY) {
             mouseX = ev.mouse.x;
@@ -85,7 +168,28 @@ int main(int argc, char **argv)
                         default: to_remove = 45;
                     }
 
-                    game = new_game(9, to_remove);
+                    game = new_game(SIZE, to_remove);
+
+                    if(is_admin) {
+                        char msg[SIZE*SIZE*2];
+                        for (int i = 0; i < SIZE; i++) {
+                            for (int j = 0; j < SIZE; j++) {
+                                msg[i*SIZE + j] = game.b[i][j];
+                            }
+                        }
+                        for (int i = 0; i < SIZE; i++) {
+                            for (int j = 0; j < SIZE; j++) {
+                                msg[(SIZE*SIZE) + i*SIZE + j] = game.gab[i][j];
+                            }
+                        }
+                        send(opponent, msg, SIZE*SIZE*2, 0);
+
+                        // agr q os dois tão sincronizados não quero mais que eles esperem um pelo outro, quero q os reads sejam sem block
+                        int op_flags = fcntl(opponent, F_GETFL); 
+                        fcntl(opponent, F_SETFL, op_flags | O_NONBLOCK); 
+                        done = true;
+                    }
+
                     selected_difficulty = DIFFICULTY_NONE;
                     current_room = ROOM_GAME;
                 }
@@ -94,7 +198,7 @@ int main(int argc, char **argv)
 
             case ROOM_GAME: 
             {                       // Game room
-                handle_game_events(ev, logicalMouseX, logicalMouseY, &gameState, &game);
+                handle_game_events(ev, logicalMouseX, logicalMouseY, &gameState, &game, opponent);
                 break;
             }
         }

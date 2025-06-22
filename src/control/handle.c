@@ -12,6 +12,11 @@
 #include "../game/game.h"
 #include "../draw/draw_rooms.h"
 
+#ifdef _WIN32
+#else
+#include <sys/socket.h>
+#endif
+
 int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room){
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
         const int BUTTON_WIDTH = 300;
@@ -127,9 +132,8 @@ Difficulty handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int log
     return DIFFICULTY_NONE;
 }
 
-void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, Game *game) {
+void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, Game *game, int opp) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
-        printf("ola mundo\n");
         const int GRID_SIZE = 9;
         const int CELL_SIZE = 50;
         int gridWidth = GRID_SIZE * CELL_SIZE;
@@ -164,6 +168,10 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
                 if (result == 1 || game->b[row][col] == key) {
                     gameState->attempts[row][col] = key;
                     gameState->errors[row][col] = (key != game->gab[row][col]);
+                }
+
+                if (result == 1) {
+                    send(opp, "val", 3, 0);
                 }
             }
 

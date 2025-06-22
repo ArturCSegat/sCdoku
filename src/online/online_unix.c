@@ -1,0 +1,69 @@
+#include "online_unix.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>      
+#include <arpa/inet.h>   
+#include <sys/socket.h>
+#include <fcntl.h>
+
+#define PORT 6969
+int connect_to(char ip[]) {
+    int sock;
+
+    // Create socket
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) {
+        perror("socket");
+        exit(EXIT_FAILURE);
+    }
+
+    // Setup address
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(PORT);
+    addr.sin_addr.s_addr = inet_addr(ip);
+    memset(addr.sin_zero, 0, sizeof(addr.sin_zero));
+
+    // Try to connect
+    if (connect(sock, (struct sockaddr *)&addr, sizeof(addr)) == 0) {
+        return sock;
+    } else {
+        return -1;
+    }
+}
+
+int get_oponnent() {
+        struct sockaddr_in addr;
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(PORT);
+        addr.sin_addr.s_addr = inet_addr("0.0.0.0");
+        memset(addr.sin_zero, 0, sizeof(addr.sin_zero));
+
+        int server_sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (server_sock < 0) {
+            perror("socket");
+            exit(EXIT_FAILURE);
+        }
+
+        if (bind(server_sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+            perror("bind");
+            exit(EXIT_FAILURE);
+        }
+
+        if (listen(server_sock, 1) < 0) {
+            perror("listen");
+            exit(EXIT_FAILURE);
+        }
+
+        printf("Waiting for a connection...\n");
+        struct sockaddr_in client_addr;
+        socklen_t client_len = sizeof(client_addr);
+        int client_sock = accept(server_sock, (struct sockaddr *)&client_addr, &client_len);
+        if (client_sock < 0) {
+            perror("accept");
+            exit(EXIT_FAILURE);
+        }
+        return client_sock;
+}
+
