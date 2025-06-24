@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/select.h>
 #include <unistd.h>      
 #include <arpa/inet.h>   
 #include <sys/socket.h>
@@ -75,7 +76,14 @@ int online_recv(ON_SOCK sock, char msg[], int n) {
     return recv(sock, msg, n, 0);
 }
 
-void set_to_nonblock(ON_SOCK sock) {
-    int op_flags = fcntl(sock, F_GETFL); 
-    fcntl(sock, F_SETFL, op_flags | O_NONBLOCK); 
+bool should_read(ON_SOCK sock) {
+    struct timeval timer;
+    timer.tv_sec = 0;
+    timer.tv_usec = 0;
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(sock, &readfds);
+    int r = select(sock+1, &readfds, NULL, NULL, &timer);
+    return r > 0 && FD_ISSET(sock, &readfds);
 }
+

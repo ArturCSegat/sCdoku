@@ -5,8 +5,7 @@
 #include <ws2tcpip.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#pragma comment(lib, "ws2_32.lib")
+#include <stdbool.h>
 
 #define PORT 6969
 typedef SOCKET ON_SOCK;
@@ -19,6 +18,6 @@ ON_SOCK get_oponnent(void);
 
 int online_send(ON_SOCK sock, const char msg[], int n);
 int online_recv(ON_SOCK sock, char msg[], int n);
-void set_to_nonblock(ON_SOCK sock);
+bool should_read(ON_SOCK sock);
 
 #endif

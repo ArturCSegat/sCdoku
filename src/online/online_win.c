@@ -5,8 +5,7 @@
 #include <ws2tcpip.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#pragma comment(lib, "ws2_32.lib")
+#include <stdbool.h>
 
 #define PORT 6969
 typedef SOCKET ON_SOCK;
@@ -93,14 +92,19 @@ int online_recv(ON_SOCK sock, char msg[], int n) {
     return recv(sock, msg, n, 0);
 }
 
-void set_to_nonblock(ON_SOCK sock) {
-    u_long mode = 1; // 1 para non-blocking
-    int res = ioctlsocket(sock, FIONBIO, &mode);
-    if (res != NO_ERROR) {
-        printf("ioctlsocket failed: %d\n", WSAGetLastError());
-        // pode tratar erro aqui se quiser
-    }
+bool should_read(ON_SOCK sock) {
+    struct timeval timer;
+    timer.tv_sec = 0;
+    timer.tv_usec = 0;
+
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(sock, &readfds);
+
+    int result = select(0, &readfds, NULL, NULL, &timer);
+    return result > 0 && FD_ISSET(sock, &readfds);
 }
+
 
 void cleanup_winsock() {
     WSACleanup();

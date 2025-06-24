@@ -58,7 +58,10 @@ int main(int argc, char **argv)
             is_admin = true;
         }
 
-    } else opponent = -1;
+    } else {
+        opponent = -1;
+        is_admin = true;
+    }
 
 
     if(!init_allegro()) return -1;
@@ -101,8 +104,6 @@ int main(int argc, char **argv)
         }
         current_room = ROOM_GAME;
 
-        // agr q os dois tão sincronizados não quero mais que eles esperem um pelo outro, quero q os reads sejam sem block
-        set_to_nonblock(opponent);
         done = true;
     }
 
@@ -118,7 +119,7 @@ int main(int argc, char **argv)
             break;         // Close window event
 
         if (ev.type == ALLEGRO_EVENT_TIMER) {
-            if (online && done) {
+            if (online && done && should_read(opponent)) {
                 online_recv(opponent, opmsg, 3);
                 if (strncmp(opmsg, "val", 3) == 0) {
                     printf("o oponente acertou uma\n");
@@ -178,8 +179,6 @@ int main(int argc, char **argv)
                         }
                         online_send(opponent, msg, SIZE*SIZE*2);
 
-                        // agr q os dois tão sincronizados não quero mais que eles esperem um pelo outro, quero q os reads sejam sem block
-                        set_to_nonblock(opponent);
                         done = true;
                     }
 
