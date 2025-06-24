@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#pragma comment(lib, "ws2_32.lib")
+
 #define PORT 6969
 typedef SOCKET ON_SOCK;
 

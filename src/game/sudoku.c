@@ -9,10 +9,10 @@ typedef char** Board;
 
 // create a board
 Board create_board(int size) {
-    Board board = malloc(size * sizeof(char*));
+    Board board = (Board)malloc(size * sizeof(char*));
     int i;
     for (i = 0; i < size; i++) {
-        board[i] = malloc(size * sizeof(char));
+        board[i] = (char*)malloc(size * sizeof(char));
         memset(board[i], EMPTY, size);
     }
     return board;

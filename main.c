@@ -1,4 +1,3 @@
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <allegro5/allegro.h>
@@ -7,7 +6,7 @@
 #include <allegro5/allegro_color.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
-#include <unistd.h>
+
 #include "src/game/sudoku.h"
 #include "src/states/states.h"
 #include "src/draw/draw_rooms.h"
