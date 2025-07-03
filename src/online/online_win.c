@@ -22,6 +22,7 @@ void init_winsock() {
 }
 
 ON_SOCK connect_to(char ip[]) {
+    init_winsock();
     ON_SOCK sock;
 
     // Create socket
@@ -48,6 +49,7 @@ ON_SOCK connect_to(char ip[]) {
 }
 
 ON_SOCK get_oponnent() {
+    init_winsock();
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(PORT);

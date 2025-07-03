@@ -4,6 +4,8 @@
 #define VIRTUAL_W 1200
 #define VIRTUAL_H 700
 
+#define SIZE 9
+
 extern ALLEGRO_DISPLAY *display;
 extern ALLEGRO_EVENT_QUEUE *event_queue;
 extern ALLEGRO_TIMER *timer;
