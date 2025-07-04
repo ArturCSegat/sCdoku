@@ -1,30 +1,45 @@
 #ifndef STATES_H
 #define STATES_H
 
-//
-//  State room enum
-//
+#ifdef _WIN32
+#include "../online/online_win.h"
+#else
+#include "../online/online_unix.h"
+#endif
+
+// Game room enum
 typedef enum {
-    ROOM_INTRO,
     ROOM_MENU,
     ROOM_CONFIG,
+    ROOM_IP,
+    ROOM_WAITING,
     ROOM_GAME,
     ROOM_DIFFICULTY
 } GameRoom;
 
-
+// Difficulty enum
 typedef enum {
-    DIFFICULTY_NONE = -1, // just for default value
-    DIFFICULTY_EASY = 0,        // 42 dicas
-    DIFFICULTY_MEDIUM = 1,      // 50 dicas
-    DIFFICULTY_HARD = 2         // 57 dicas
+    DIFFICULTY_NONE = -1,
+    DIFFICULTY_EASY = 0,
+    DIFFICULTY_MEDIUM = 1,
+    DIFFICULTY_HARD = 2
 } Difficulty;
 
+// Game state struct
 typedef struct {
     int selectedRow;
     int selectedCol;
     bool errors[9][9];
     char attempts[9][9];
 } GameState;
+
+// Online state struct
+typedef struct {
+    ON_SOCK opponent;
+    bool is_admin;
+    char ip[15];
+    bool done;
+    bool ip_invalid;
+} OnlineState;
 
 #endif

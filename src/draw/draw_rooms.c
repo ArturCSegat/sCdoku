@@ -71,7 +71,7 @@ void draw_menu_room(int mouseX, int mouseY) {
     al_clear_to_color(backgroundColor);
 
     // Calculate button layout
-    const int NUM_BUTTONS = 3;
+    const int NUM_BUTTONS = 4;
     int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
     int firstButtonY = (VIRTUAL_H - totalMenuHeight) / 2;
     int buttonX = LEFT_MARGIN;
@@ -83,7 +83,7 @@ void draw_menu_room(int mouseX, int mouseY) {
     al_draw_text(fontTitle, titleColor, 30, 100, ALLEGRO_ALIGN_LEFT, "sCdoku");
 
     // Menu options
-    const char* menuOptions[] = { "START", "CONFIG", "EXIT" };
+    const char* menuOptions[] = { "SOLO", "MULTIPLAYER", "CONFIGURACOES", "SAIR" };
 
     int i;
     // Draw buttons
@@ -368,4 +368,72 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game) {
             }
         }
     }
+}
+
+void draw_waiting_room(int mouseX, int mouseY) {
+    init_color();
+    al_clear_to_color(backgroundColor);
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+
+    al_draw_filled_rectangle(0, 0,
+        (VIRTUAL_W/3), VIRTUAL_H,
+        grayColor);
+
+    al_draw_text(fontTitle, titleColor, 30, 100, ALLEGRO_ALIGN_LEFT, "sCdoku");
+}
+
+void draw_ip_room(int mouseX, int mouseY, OnlineState *online_state) {
+    init_color();
+    al_clear_to_color(backgroundColor);
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+
+    al_draw_text(fontTitle, titleColor, VIRTUAL_W / 2, 100, ALLEGRO_ALIGN_CENTER, "DIGITE O IP");
+
+    const int BOX_WIDTH = 400;
+    const int BOX_HEIGHT = 60;
+    int boxX = (VIRTUAL_W - BOX_WIDTH) / 2;
+    int boxY = VIRTUAL_H / 2 - BOX_HEIGHT / 2;
+
+    al_draw_filled_rectangle(boxX, boxY, boxX + BOX_WIDTH, boxY + BOX_HEIGHT, grayColor);
+    al_draw_rectangle(boxX, boxY, boxX + BOX_WIDTH, boxY + BOX_HEIGHT,
+                      online_state->ip_invalid ? errorBoxColor : buttonColor, 2);
+
+    al_draw_text(font, numberColor, boxX + TEXT_PADDING_X, boxY + 10, ALLEGRO_ALIGN_LEFT, online_state->ip);
+
+    if (online_state->ip_invalid) {
+        al_draw_text(font, errorTextColor, VIRTUAL_W / 2, boxY + BOX_HEIGHT + 10,
+                     ALLEGRO_ALIGN_CENTER, "IP invalido, tente novamente!");
+    }
+
+    const int BUTTON_HEIGHT = 50;
+    const int BUTTON_PADDING = 20;
+    
+    int BUTTON_WIDTH = (BOX_WIDTH - BUTTON_PADDING) / 2;
+    int buttonY = boxY + BOX_HEIGHT + 80;
+    int voltarX = boxX;
+    int avancarX = voltarX + BUTTON_WIDTH + BUTTON_PADDING;
+
+    bool isBackHovered = mouseX >= voltarX && mouseX <= voltarX + BUTTON_WIDTH &&
+                         mouseY >= buttonY && mouseY <= buttonY + BUTTON_HEIGHT;
+    ALLEGRO_COLOR backColor = isBackHovered ? buttonHoverColor : buttonColor;
+
+    al_draw_filled_rectangle(voltarX, buttonY,
+                             voltarX + BUTTON_WIDTH, buttonY + BUTTON_HEIGHT,
+                             backColor);
+
+    al_draw_text(font, textButtonColor, voltarX + TEXT_PADDING_X,
+                 buttonY + (BUTTON_HEIGHT - al_get_font_line_height(font)) / 2,
+                 ALLEGRO_ALIGN_LEFT, "VOLTAR");
+
+    bool isNextHovered = mouseX >= avancarX && mouseX <= avancarX + BUTTON_WIDTH &&
+                         mouseY >= buttonY && mouseY <= buttonY + BUTTON_HEIGHT;
+    ALLEGRO_COLOR nextColor = isNextHovered ? buttonHoverColor : buttonColor;
+
+    al_draw_filled_rectangle(avancarX, buttonY,
+                             avancarX + BUTTON_WIDTH, buttonY + BUTTON_HEIGHT,
+                             nextColor);
+
+    al_draw_text(font, textButtonColor, avancarX + TEXT_PADDING_X,
+                 buttonY + (BUTTON_HEIGHT - al_get_font_line_height(font)) / 2,
+                 ALLEGRO_ALIGN_LEFT, "AVANCAR");
 }

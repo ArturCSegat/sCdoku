@@ -14,16 +14,11 @@
 #include "src/config.h"
 #include "src/game/game.h"
 
-#define SIZE 9
-
 #ifdef _WIN32
 #include "src/online/online_win.h"
 #else
 #include "src/online/online_unix.h"
 #endif
-
-// Global variables for game state management
-GameRoom current_room;  // Current game room state
 
 // Allegro resources
 ALLEGRO_DISPLAY *display = NULL;        // Main display window
@@ -39,29 +34,17 @@ void register_events();  // Register event handlers
 // Main function - Game entry point
 int main(int argc, char **argv)
 {
-    printf("voce quer jogar online? (1 = sim, 0 = nao)\n");
-    int online = 0;
-    scanf("%d", &online);
-    char ip[15];
+    // Global variables for game state management
+    GameRoom current_room = ROOM_MENU;  // Current game room state
+    OnlineState online_state; // Online state
+    online_state.opponent = -1;
+    online_state.done = false;
+    online_state.is_admin = false;
+    online_state.ip[0] = '\0';
+    online_state.ip_invalid = false;
 
-    ON_SOCK opponent;
-    bool is_admin = false;
-    if (online) {
-        printf("entre com o ip do seu oponente ex: 127.0.0.1\n");
-        scanf("%s", ip);
-        opponent = connect_to(ip);
-        printf("opponent: %d\n", opponent);
-        if (opponent==(-1)) {
-            printf("admin\n");
-            opponent = get_oponnent(); // blocking
-            is_admin = true;
-        }
-
-    } else {
-        opponent = -1;
-        is_admin = true;
-    }
-
+    GameState gameState = { -1, -1 , {{false}}}; // Initialize game state
+    Game game;
 
     if(!init_allegro()) return -1;
 
@@ -70,41 +53,6 @@ int main(int argc, char **argv)
     int mouseX = 0, mouseY = 0;               // Physical mouse position (window coordinates)
     int logicalMouseX = 0, logicalMouseY = 0; // Logical mouse position (virtual coordinates)
     bool is_fullscreen = false;               // Fullscreen mode flag
-
-
-    // Initialize game state
-    current_room = ROOM_MENU;        // Start in menu room
-    GameState gameState = { -1, -1 , {{false}}}; // Initialize game state
-    Game game;
-
-    bool done = false;
-    if (!is_admin) {
-        // o servo espera o admin entrar no ROOM_GAME e n decide nada
-        char b[SIZE*SIZE*2]; // vai receber 2 tabs um sendo o gab
-        online_recv(opponent, b, SIZE*SIZE*2); // blocking read
-        game.b = create_board(SIZE);
-        game.gab = create_board(SIZE);
-        game.size = SIZE;
-        int c = 0;
-        int i, j;
-        for (i = 0; i < SIZE; i++) {
-            for (j = 0; j < SIZE; j++) {
-                if (b[i*SIZE + j] == EMPTY) c++;
-                game.b[i][j] = b[i*SIZE + j];
-            }
-        }
-        game.left = c;
-
-        Board gab;
-        for (i = 0; i < SIZE; i++) {
-            for (j = 0; j < SIZE; j++) {
-                game.gab[i][j] = b[(SIZE*SIZE) + i*SIZE + j];
-            }
-        }
-        current_room = ROOM_GAME;
-
-        done = true;
-    }
 
     // Main game loop
     char opmsg[3] = {0};
@@ -118,13 +66,13 @@ int main(int argc, char **argv)
             break;         // Close window event
 
         if (ev.type == ALLEGRO_EVENT_TIMER) {
-            if (online && done && should_read(opponent)) {
-                online_recv(opponent, opmsg, 3);
-                if (strncmp(opmsg, "val", 3) == 0) {
-                    printf("o oponente acertou uma\n");
-                    memset(opmsg, 0, 3);
-                }
-            }
+            //if (online && done && should_read(opponent)) {
+            //    online_recv(opponent, opmsg, 3);
+            //    if (strncmp(opmsg, "val", 3) == 0) {
+            //        printf("o oponente acertou uma\n");
+            //        memset(opmsg, 0, 3);
+            //    }
+            //}
             redraw = true; // Timer event signals it's time to redraw
         }
 
@@ -132,6 +80,15 @@ int main(int argc, char **argv)
             mouseX = ev.mouse.x;
             mouseY = ev.mouse.y;    // Track mouse movement events, store physical mouse position
         }
+
+        struct ponto {
+            float x;
+            float y;
+        };
+        struct quadrad {
+            struct ponto A;
+            struct ponto B;
+        };
 
         // Handle events based on current room
         switch(current_room) {
@@ -150,8 +107,8 @@ int main(int argc, char **argv)
                 break;
 
             case ROOM_DIFFICULTY:
-            {                       // Difficulty room
-                Difficulty selected_difficulty = handle_difficulty_events(ev, logicalMouseX, logicalMouseY, &current_room);
+            {                       // Select difficulty room
+                Difficulty selected_difficulty = handle_difficulty_events(ev, logicalMouseX, logicalMouseY, &current_room, &online_state, &game);
                 if (selected_difficulty != DIFFICULTY_NONE) {
                     int to_remove;
                     switch (selected_difficulty) {
@@ -162,34 +119,30 @@ int main(int argc, char **argv)
                     }
 
                     game = new_game(SIZE, to_remove);
-
-                    if(is_admin) {
-                        char msg[SIZE*SIZE*2];
-                        int i,j;
-                        for (i = 0; i < SIZE; i++) {
-                            for (j = 0; j < SIZE; j++) {
-                                msg[i*SIZE + j] = game.b[i][j];
-                            }
-                        }
-                        for (i = 0; i < SIZE; i++) {
-                            for (j = 0; j < SIZE; j++) {
-                                msg[(SIZE*SIZE) + i*SIZE + j] = game.gab[i][j];
-                            }
-                        }
-                        online_send(opponent, msg, SIZE*SIZE*2);
-
-                        done = true;
-                    }
-
                     selected_difficulty = DIFFICULTY_NONE;
+
                     current_room = ROOM_GAME;
+
                 }
                 break;
             }
 
+
+            case ROOM_WAITING:
+            {                       // Waiting connection room
+                handle_waiting_events(ev, logicalMouseX, logicalMouseY, &current_room, &online_state, &game);
+                break;
+            }
+            case ROOM_IP:
+            {                       // IP input room
+                handle_ip_events(ev, logicalMouseX, logicalMouseY, &current_room, &online_state);
+                break;
+            }
+
+
             case ROOM_GAME:
             {                       // Game room
-                handle_game_events(ev, logicalMouseX, logicalMouseY, &gameState, &game, opponent);
+                handle_game_events(ev, logicalMouseX, logicalMouseY, &gameState, &game, &online_state);
                 break;
             }
         }
@@ -229,16 +182,20 @@ int main(int argc, char **argv)
             // Draw current game room
             switch (current_room)
             {
-                case ROOM_INTRO:        // Intro room
-                    // TODO: Implement intro animation
-                    break;
-
                 case ROOM_MENU:         // Menu room
                     draw_menu_room(logicalMouseX, logicalMouseY);
                     break;
 
                 case ROOM_DIFFICULTY:   // Difficulty selection room
                     draw_difficulty_room(logicalMouseX, logicalMouseY);
+                    break;
+
+                case ROOM_IP:           // IP input room
+                    draw_ip_room(logicalMouseX, logicalMouseY, &online_state);
+                    break;
+
+                case ROOM_WAITING:      // Waiting connection room
+                    draw_waiting_room(logicalMouseX, logicalMouseY);
                     break;
 
                 case ROOM_CONFIG:       // Configuration room

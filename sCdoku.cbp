@@ -114,6 +114,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/control/handle.h" />
+		<Unit filename="src/control/validation/ip_validation.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/control/validation/ip_validation.h" />
 		<Unit filename="src/draw/draw_rooms.c">
 			<Option compilerVar="CC" />
 		</Unit>

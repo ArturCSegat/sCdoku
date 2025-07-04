@@ -22,6 +22,7 @@ void init_winsock() {
 }
 
 ON_SOCK connect_to(char ip[]) {
+    init_winsock();
     ON_SOCK sock;
 
     // Create socket
@@ -47,7 +48,8 @@ ON_SOCK connect_to(char ip[]) {
     }
 }
 
-ON_SOCK get_oponnent() {
+ON_SOCK get_servidor(){
+    init_winsock();
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(PORT);
@@ -72,6 +74,11 @@ ON_SOCK get_oponnent() {
         exit(EXIT_FAILURE);
     }
 
+    return server_sock;
+}
+
+ON_SOCK get_oponnent() {
+    ON_SOCK server_sock = get_servidor();
     printf("Waiting for a connection...\n");
     struct sockaddr_in client_addr;
     int client_len = sizeof(client_addr);
@@ -102,7 +109,7 @@ bool should_read(ON_SOCK sock) {
     fd_set readfds;
     FD_ZERO(&readfds);
     FD_SET(sock, &readfds);
-
+    
     int result = select(0, &readfds, NULL, NULL, &timer);
     return result > 0 && FD_ISSET(sock, &readfds);
 }

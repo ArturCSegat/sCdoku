@@ -11,6 +11,7 @@
 #include "../states/states.h"
 #include "../game/game.h"
 #include "../draw/draw_rooms.h"
+#include "./validation/ip_validation.h"
 
 #ifdef _WIN32
 #include "../online/online_win.h"
@@ -20,11 +21,11 @@
 
 int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room){
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
-        const int BUTTON_WIDTH = 300;
-        const int BUTTON_HEIGHT = 40;
-        const int BUTTON_PADDING = 10;
+        const int BUTTON_WIDTH = VIRTUAL_W/3;
+        const int BUTTON_HEIGHT = 50;
+        const int BUTTON_PADDING = 20;
         const int LEFT_MARGIN = 30;
-        const int NUM_BUTTONS = 3;
+        const int NUM_BUTTONS = 4;
 
         int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
         int firstButtonY = (VIRTUAL_H - totalMenuHeight) / 2;
@@ -38,15 +39,22 @@ int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, G
             *current_room = ROOM_DIFFICULTY;
         }
 
+        // MULTIPLAYER
+        int multiplayerButtonY = firstButtonY + 1 * (BUTTON_HEIGHT + BUTTON_PADDING);
+        if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
+            logicalMouseY >= multiplayerButtonY && logicalMouseY <= multiplayerButtonY + BUTTON_HEIGHT) {
+            *current_room = ROOM_IP;
+        }
+
         // CONFIG
-        int configButtonY = firstButtonY + 1 * (BUTTON_HEIGHT + BUTTON_PADDING);
+        int configButtonY = firstButtonY + 2 * (BUTTON_HEIGHT + BUTTON_PADDING);
         if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
             logicalMouseY >= configButtonY && logicalMouseY <= configButtonY + BUTTON_HEIGHT) {
             *current_room = ROOM_CONFIG;
         }
 
         // EXIT
-        int exitButtonY = firstButtonY + 2 * (BUTTON_HEIGHT + BUTTON_PADDING);
+        int exitButtonY = firstButtonY + 3 * (BUTTON_HEIGHT + BUTTON_PADDING);
         if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
             logicalMouseY >= exitButtonY && logicalMouseY <= exitButtonY + BUTTON_HEIGHT) {
             return 0; // Sinaliza que deve sair
@@ -58,9 +66,9 @@ int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, G
 
 int handle_config_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, bool *is_fullscreen){
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
-        const int BUTTON_WIDTH = 300;
-        const int BUTTON_HEIGHT = 40;
-        const int BUTTON_PADDING = 10;
+        const int BUTTON_WIDTH = VIRTUAL_W/3;
+        const int BUTTON_HEIGHT = 50;
+        const int BUTTON_PADDING = 20;
         const int LEFT_MARGIN = 30;
         const int NUM_BUTTONS = 2;
 
@@ -93,7 +101,7 @@ int handle_config_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY,
     return 1; // Continua rodando
 }
 
-Difficulty handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room) {
+Difficulty handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState* online_state, Game * game) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
         const int BUTTON_SIZE = 150;
         const int BUTTON_SPACING = 30;
@@ -111,6 +119,25 @@ Difficulty handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int log
             if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_SIZE &&
                 logicalMouseY >= buttonY && logicalMouseY <= buttonY + BUTTON_SIZE) {
                 *current_room = ROOM_GAME;
+                printf("bef send\n");
+                *game = new_game(SIZE, 20);
+                char msg[SIZE*SIZE*2];
+                int row,col;
+                for (row = 0; row < SIZE; row++) {
+                    for (col = 0; col < SIZE; col++) {
+                        msg[row*SIZE + col] = game->b[row][col];
+                    }
+                }
+                for (row = 0; row < SIZE; row++) {
+                    for (col = 0; col < SIZE; col++) {
+                        msg[(SIZE*SIZE) + row*SIZE + col] = game->gab[row][col];
+                    }
+                }
+                int r = online_send(online_state->opponent, msg, SIZE*SIZE*2);
+                printf("after send: %d\n", r);
+
+
+
                 return (Difficulty)i;
             }
         }
@@ -133,7 +160,7 @@ Difficulty handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int log
     return DIFFICULTY_NONE;
 }
 
-void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, Game *game, ON_SOCK opp) {
+void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, Game *game, OnlineState *opp) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
         const int GRID_SIZE = 9;
         const int CELL_SIZE = 50;
@@ -154,6 +181,29 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
         }
     }
 
+    if(ev.type == ALLEGRO_EVENT_KEY_DOWN){
+        int row = gameState->selectedRow;
+        int col = gameState->selectedCol;
+
+        switch (ev.keyboard.keycode) {
+            case ALLEGRO_KEY_UP:
+                if (row > 0) row--;
+                break;
+            case ALLEGRO_KEY_DOWN:
+                if (row < 8) row++;
+                break;
+            case ALLEGRO_KEY_LEFT:
+                if (col > 0) col--;
+                break;
+            case ALLEGRO_KEY_RIGHT:
+                if (col < 8) col++;
+                break;
+        }
+
+        gameState->selectedRow = row;
+        gameState->selectedCol = col;
+    }
+
     if (ev.type == ALLEGRO_EVENT_KEY_CHAR) {
         int row = gameState->selectedRow;
         int col = gameState->selectedCol;
@@ -172,7 +222,7 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
                 }
 
                 if (result == 1) {
-                    online_send(opp, "val", 3);
+                    online_send(opp->opponent, "val", 3);
                 }
             }
 
@@ -187,4 +237,121 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
             }
         }
     }
+}
+
+void handle_ip_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState *online_state) {
+    if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
+        int mouseX = logicalMouseX;
+        int mouseY = logicalMouseY;
+
+        // Alinhamento igual ao da draw
+        const int BOX_WIDTH = 400;
+        const int BOX_HEIGHT = 60;
+        int boxX = (VIRTUAL_W - BOX_WIDTH) / 2;
+
+        const int BUTTON_PADDING = 20;
+        int BUTTON_WIDTH = (BOX_WIDTH - BUTTON_PADDING) / 2;
+        int BUTTON_HEIGHT = 50;
+        int buttonY = (VIRTUAL_H / 2 - BOX_HEIGHT / 2) + BOX_HEIGHT + 80;
+
+        int voltarX = boxX;
+        int avancarX = voltarX + BUTTON_WIDTH + BUTTON_PADDING;
+
+        // Botão VOLTAR
+        if (mouseX >= voltarX && mouseX <= voltarX + BUTTON_WIDTH &&
+            mouseY >= buttonY && mouseY <= buttonY + BUTTON_HEIGHT) {
+            *current_room = ROOM_MENU;
+            online_state->ip[0] = '\0';
+            online_state->ip_invalid = false;
+        }
+
+        // Botão AVANÇAR
+        if (mouseX >= avancarX && mouseX <= avancarX + BUTTON_WIDTH &&
+            mouseY >= buttonY && mouseY <= buttonY + BUTTON_HEIGHT) {
+            if (is_valid_ip(online_state->ip)) {
+                online_state->ip_invalid = false;
+                *current_room = ROOM_WAITING;
+            } else {
+                online_state->ip_invalid = true;
+            }
+        }
+    }
+
+    if (ev.type == ALLEGRO_EVENT_KEY_CHAR) {
+        char ch = ev.keyboard.unichar;
+
+        // Inserção de número ou ponto
+        if ((ch >= '0' && ch <= '9') || ch == '.') {
+            size_t len = strlen(online_state->ip);
+            if (len < 15) {
+                online_state->ip[len] = ch;
+                online_state->ip[len + 1] = '\0';
+            }
+        }
+
+        // Backspace
+        if (ev.keyboard.keycode == ALLEGRO_KEY_BACKSPACE) {
+            size_t len = strlen(online_state->ip);
+            if (len > 0) {
+                online_state->ip[len - 1] = '\0';
+            }
+        }
+
+        // ENTER: valida IP
+        if (ev.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+            if (is_valid_ip(online_state->ip)) {
+                online_state->ip_invalid = false;
+                *current_room = ROOM_WAITING;
+            } else {
+                online_state->ip_invalid = true;
+            }
+        }
+    }
+}
+
+void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState *online_state, Game * game) {
+    if (online_state->opponent != -1) {
+        if (!online_state->is_admin) {
+            char b[SIZE*SIZE*2]; // vai receber 2 tabs um sendo o gab
+            printf("bef read\n");
+            online_recv(online_state->opponent, b, SIZE*SIZE*2); // blocking read
+            printf("after read\n");
+            game->b = create_board(SIZE);
+            game->gab = create_board(SIZE);
+            game->size = SIZE;
+            int c = 0;
+            int i, j;
+            for (i = 0; i < SIZE; i++) {
+                for (j = 0; j < SIZE; j++) {
+                    if (b[i*SIZE + j] == EMPTY) c++;
+                    game->b[i][j] = b[i*SIZE + j];
+                }
+            }
+            game->left = c;
+
+            Board gab;
+            for (i = 0; i < SIZE; i++) {
+                for (j = 0; j < SIZE; j++) {
+                    game->gab[i][j] = b[(SIZE*SIZE) + i*SIZE + j];
+                }
+            }
+            *current_room = ROOM_GAME;
+            return;
+        }
+    };
+
+    online_state->opponent = connect_to(online_state->ip);
+    printf("conecao %d", online_state->opponent);
+    if (online_state->opponent==(-1)) {
+        online_state->opponent = get_oponnent();
+        printf("oponent: %d", online_state->opponent);
+        online_state->is_admin = true;
+    }
+
+    if(!online_state->is_admin){
+        printf("go to wait");
+        *current_room = ROOM_WAITING;
+        return;
+    }
+    *current_room = ROOM_DIFFICULTY;
 }
