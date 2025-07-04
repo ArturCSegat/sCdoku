@@ -162,6 +162,29 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
         }
     }
 
+    if(ev.type == ALLEGRO_EVENT_KEY_DOWN){
+        int row = gameState->selectedRow;
+        int col = gameState->selectedCol;
+
+        switch (ev.keyboard.keycode) {
+            case ALLEGRO_KEY_UP:
+                if (row > 0) row--;
+                break;
+            case ALLEGRO_KEY_DOWN:
+                if (row < 8) row++;
+                break;
+            case ALLEGRO_KEY_LEFT:
+                if (col > 0) col--;
+                break;
+            case ALLEGRO_KEY_RIGHT:
+                if (col < 8) col++;
+                break;
+        }
+
+        gameState->selectedRow = row;
+        gameState->selectedCol = col;
+    }
+
     if (ev.type == ALLEGRO_EVENT_KEY_CHAR) {
         int row = gameState->selectedRow;
         int col = gameState->selectedCol;
