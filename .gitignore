@@ -5,4 +5,7 @@
 *.so
 *.dll
 my_program
+bin/
+obj/
+
 
