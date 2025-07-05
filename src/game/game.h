@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "sudoku.h"
+#include "../states/states.h"
 
 typedef struct {
     char v;
@@ -15,6 +16,7 @@ typedef struct {
     int size;
     int to_remove;
     int left;
+    Difficulty difficulty;
     Board b;
     Board gab;
 } Game;

@@ -101,7 +101,7 @@ int handle_config_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY,
     return 1; // Continua rodando
 }
 
-void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState* online_state, Game * game) {
+void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState* online_state, Game * game, GameState *gameState) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
         const int BUTTON_SIZE = 150;
         const int BUTTON_SPACING = 30;
@@ -119,12 +119,17 @@ void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMo
             if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_SIZE &&
                 logicalMouseY >= buttonY && logicalMouseY <= buttonY + BUTTON_SIZE) {
                 switch(i){
-                    case 0: to_remove = 30; break;
-                    case 1: to_remove = 45; break;
-                    case 2: to_remove = 60; break;
+                    case 0: to_remove = 45; break;
+                    case 1: to_remove = 50; break;
+                    case 2: to_remove = 55; break;
                 }
                 *current_room = ROOM_GAME;
                 *game = new_game(SIZE, to_remove);
+                switch(i){
+                    case 0: game->difficulty = DIFFICULTY_EASY; break;
+                    case 1: game->difficulty = DIFFICULTY_MEDIUM; break;
+                    case 2: game->difficulty = DIFFICULTY_HARD; break;
+                }
                 char msg[SIZE*SIZE*2];
                 int row,col;
                 for (row = 0; row < SIZE; row++) {
@@ -139,6 +144,7 @@ void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMo
                 }
                 int r = online_send(online_state->opponent, msg, SIZE*SIZE*2);
                 online_state->done = true;
+                gameState->startTime = al_get_time();
             }
         }
 
@@ -164,7 +170,7 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
         int gridHeight = GRID_SIZE * CELL_SIZE;
 
         int startX = (VIRTUAL_W - gridWidth) / 2;
-        int startY = (VIRTUAL_H - gridHeight) / 2;
+        int startY = (VIRTUAL_H - gridHeight) / 2 + 40;
 
         if (logicalMouseX >= startX && logicalMouseX < startX + gridWidth &&
             logicalMouseY >= startY && logicalMouseY < startY + gridHeight) {
@@ -223,7 +229,7 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
                 online_recv(opp->opponent, "val", 3);
             }
 
-            if (key == ALLEGRO_KEY_BACKSPACE || key == '0') {
+            if (ev.keyboard.keycode == ALLEGRO_KEY_BACKSPACE || key == '0') {
                 // Evita apagar números fixos
                 if (game->gab[row][col] != game->b[row][col]) {
                     Move m = move(EMPTY, row, col);
@@ -236,7 +242,7 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
     }
 }
 
-void handle_ip_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState *online_state) {
+void handle_ip_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState *online_state, GameState *gameState) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
         int mouseX = logicalMouseX;
         int mouseY = logicalMouseY;
@@ -306,7 +312,7 @@ void handle_ip_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, Ga
     }
 }
 
-void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState *online_state, Game * game) {
+void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState *online_state, Game * game, GameState *gameState) {
     if (online_state->opponent != -1) {
         if (!online_state->is_admin) {
             char b[SIZE*SIZE*2]; // vai receber 2 tabs um sendo o gab
@@ -324,6 +330,7 @@ void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouse
                 }
             }
             game->left = c;
+            gameState->startTime = al_get_time();
 
             Board gab;
             for (i = 0; i < SIZE; i++) {

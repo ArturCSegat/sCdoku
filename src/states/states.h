@@ -31,6 +31,7 @@ typedef struct {
     int selectedCol;
     bool errors[9][9];
     char attempts[9][9];
+    double startTime;
 } GameState;
 
 // Online state struct

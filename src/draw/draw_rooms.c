@@ -35,22 +35,25 @@ ALLEGRO_COLOR errorTextColor;   // Box color when selected
 ALLEGRO_FONT *font;               // Regular font
 ALLEGRO_FONT *fontTitle;         // Title font
 ALLEGRO_FONT *fontNumber;         // Title font
+ALLEGRO_FONT *fontSmall;         // Title font
 
 // Initialize font resources
 void init_font(){
     font = al_load_ttf_font("assets/font/bdb.TTF", 40, 0);     // Load regular font at 44pt
     fontTitle = al_load_ttf_font("assets/font/font.TTF", 70, 0); // Load title font at 50pt
     fontNumber = al_load_ttf_font("assets/font/bdb.TTF", 30, 0); // Load number font at 30pt
+    fontSmall = al_load_ttf_font("assets/font/bdb.TTF", 20, 0); // Load number font at 30pt
 }
 
 void destroy_font(){
     al_destroy_font(font);
     al_destroy_font(fontTitle);
     al_destroy_font(fontNumber);
+    al_destroy_font(fontSmall);
 }
 
 void init_color(){
-    backgroundColor = al_map_rgb(2, 5, 1);
+    backgroundColor = al_map_rgb(10, 10, 15);
     grayColor = al_map_rgb(44, 47, 66);
     buttonColor = al_map_rgb(50, 122, 232);
     buttonHoverColor = al_map_rgb(23, 96, 207);
@@ -258,21 +261,79 @@ void draw_difficulty_room(int mouseX, int mouseY) {
 void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game) {
     init_color();
     al_clear_to_color(backgroundColor);
-    al_draw_text(fontTitle, titleColor, VIRTUAL_W / 2, 20, ALLEGRO_ALIGN_CENTER, "sCdoku");
 
     const int GRID_SIZE = 9;
     const int CELL_SIZE = 50;
-    int gridWidth = GRID_SIZE * CELL_SIZE;
-    int gridHeight = GRID_SIZE * CELL_SIZE;
+    const int gridWidth = GRID_SIZE * CELL_SIZE;
+    const int gridHeight = GRID_SIZE * CELL_SIZE;
 
-    int startX = (VIRTUAL_W - gridWidth) / 2;
-    int startY = (VIRTUAL_H - gridHeight) / 2;
+    const int PANEL_PADDING = 10;
+    const int HEADER_HEIGHT = 40;
+    const int PANEL_WIDTH = gridWidth + PANEL_PADDING * 2;
+    const int PANEL_HEIGHT = gridHeight + HEADER_HEIGHT + PANEL_PADDING * 2;
+    const int TEXT_OFFSET_Y = 6;
 
+    const int panelX = (VIRTUAL_W - PANEL_WIDTH) / 2;
+    const int panelY = (VIRTUAL_H - PANEL_HEIGHT) / 2;
+
+    al_draw_filled_rounded_rectangle(
+        panelX, panelY,
+        panelX + PANEL_WIDTH, panelY + PANEL_HEIGHT,
+        20, 20,
+        grayColor
+    );
+
+    char statusText[64];
+    const char *difficulty_str;
+    switch (game->difficulty) {
+        case DIFFICULTY_EASY:
+            difficulty_str = "FACIL";
+            break;
+        case DIFFICULTY_MEDIUM:
+            difficulty_str = "MEDIO";
+            break;
+        case DIFFICULTY_HARD:
+            difficulty_str = "DIFICIL";
+            break;
+        default:
+            difficulty_str = "NONE";
+            break;
+    }
+
+    char diffText[32];
+    sprintf(diffText, "DIFICULDADE: %s", difficulty_str);
+    al_draw_text(fontSmall, titleColor,
+                panelX + PANEL_PADDING,
+                panelY + PANEL_PADDING + TEXT_OFFSET_Y,
+                ALLEGRO_ALIGN_LEFT, diffText);
+
+    char errosText[16];
+    sprintf(errosText, "ERROS: %d/3", (3 - game->lifes));
+    al_draw_text(fontSmall, titleColor,
+                panelX + PANEL_WIDTH / 2,
+                panelY + PANEL_PADDING + TEXT_OFFSET_Y,
+                ALLEGRO_ALIGN_CENTER, errosText);
+
+    // Tempo decorrido (timer) alinhado à direita da borda
+    double now = al_get_time();
+    int elapsedSeconds = (int)(now - gameState->startTime);
+    int minutes = elapsedSeconds / 60;
+    int seconds = elapsedSeconds % 60;
+
+    char timerText[32];
+    sprintf(timerText, "TEMPO: %02d:%02d", minutes, seconds);
+
+    al_draw_text(fontSmall, titleColor,
+                 panelX + PANEL_WIDTH - PANEL_PADDING,
+                 panelY + PANEL_PADDING + TEXT_OFFSET_Y,
+                 ALLEGRO_ALIGN_RIGHT, timerText);
+
+    const int startX = panelX + PANEL_PADDING;
+    const int startY = panelY + PANEL_PADDING + HEADER_HEIGHT;
+
+    int row, col;
     int selectedRow = gameState->selectedRow;
     int selectedCol = gameState->selectedCol;
-
-    int row;
-    int col;
     for (row = 0; row < GRID_SIZE; row++) {
         for (col = 0; col < GRID_SIZE; col++) {
             int x = startX + col * CELL_SIZE;
@@ -281,7 +342,7 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game) {
             al_draw_filled_rectangle(x, y, x + CELL_SIZE, y + CELL_SIZE, grayColor);
         }
     }
-    // Pintar células relacionadas (linha, coluna, bloco 3x3)
+
     if (selectedRow >= 0 && selectedCol >= 0) {
         int boxStartRow = (selectedRow / 3) * 3;
         int boxStartCol = (selectedCol / 3) * 3;
@@ -302,7 +363,6 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game) {
             }
         }
 
-        // Pintar a célula selecionada por cima
         if (selectedRow >= 0 && selectedCol >= 0) {
             char selectedVal = game->b[selectedRow][selectedCol];
     
@@ -318,13 +378,12 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game) {
                 }
             }
     
-            // Desenhar a célula selecionada por cima (caso queira destaque maior)
             int selX = startX + selectedCol * CELL_SIZE;
             int selY = startY + selectedRow * CELL_SIZE;
             al_draw_filled_rectangle(selX, selY, selX + CELL_SIZE, selY + CELL_SIZE, selectedBoxColor);
         }
     }
-    // Verifica quais caixas possuem erros e printa caixa vermelha
+    
     for (row = 0; row < GRID_SIZE; row++) {
         for (col = 0; col < GRID_SIZE; col++) {
             int x = startX + col * CELL_SIZE;
