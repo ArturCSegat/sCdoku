@@ -178,7 +178,7 @@ int main(int argc, char **argv)
                     break;
 
                 case ROOM_WAITING:      // Waiting connection room
-                    draw_waiting_room(logicalMouseX, logicalMouseY);
+                    draw_waiting_room(logicalMouseX, logicalMouseY, &online_state);
                     break;
 
                 case ROOM_CONFIG:       // Configuration room

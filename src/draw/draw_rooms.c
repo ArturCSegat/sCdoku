@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
@@ -429,7 +430,7 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game) {
     }
 }
 
-void draw_waiting_room(int mouseX, int mouseY) {
+void draw_waiting_room(int mouseX, int mouseY, OnlineState*online_state) {
     init_color();
     al_clear_to_color(backgroundColor);
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
@@ -438,7 +439,12 @@ void draw_waiting_room(int mouseX, int mouseY) {
         (VIRTUAL_W/3), VIRTUAL_H,
         grayColor);
 
-    al_draw_text(fontTitle, titleColor, 30, 100, ALLEGRO_ALIGN_LEFT, "sCdoku");
+    al_draw_text(fontTitle, titleColor, 30, 100, ALLEGRO_ALIGN_LEFT, "scdoku");
+    if (online_state->is_admin) {
+        al_draw_text(fontSmall, titleColor, 600, 150, ALLEGRO_ALIGN_CENTER, "Aguardando conecao de outor jogador");
+    } else {
+        al_draw_text(fontSmall, titleColor, 600, 150, ALLEGRO_ALIGN_CENTER, "Voce está conectado, aguarde o começo do jogo");
+    }
 }
 
 void draw_ip_room(int mouseX, int mouseY, OnlineState *online_state) {

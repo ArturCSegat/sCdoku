@@ -163,6 +163,7 @@ void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMo
 }
 
 void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, Game *game, OnlineState *opp) {
+    opp->waiting = false;
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
         const int GRID_SIZE = 9;
         const int CELL_SIZE = 50;
@@ -226,7 +227,6 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
                 if (result == 1) {
                     online_send(opp->opponent, "val", 3);
                 }
-                online_recv(opp->opponent, "val", 3);
             }
 
             if (ev.keyboard.keycode == ALLEGRO_KEY_BACKSPACE || key == '0') {
@@ -271,12 +271,7 @@ void handle_ip_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, Ga
         // Botão AVANÇAR
         if (mouseX >= avancarX && mouseX <= avancarX + BUTTON_WIDTH &&
             mouseY >= buttonY && mouseY <= buttonY + BUTTON_HEIGHT) {
-            if (is_valid_ip(online_state->ip)) {
-                online_state->ip_invalid = false;
-                *current_room = ROOM_WAITING;
-            } else {
-                online_state->ip_invalid = true;
-            }
+            goto ip_val;
         }
     }
 
@@ -302,17 +297,32 @@ void handle_ip_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, Ga
 
         // ENTER: valida IP
         if (ev.keyboard.keycode == ALLEGRO_KEY_ENTER) {
-            if (is_valid_ip(online_state->ip)) {
-                online_state->ip_invalid = false;
-                *current_room = ROOM_WAITING;
-            } else {
-                online_state->ip_invalid = true;
-            }
+            goto ip_val;
         }
     }
+
+    return;
+    ip_val:
+        if (is_valid_ip(online_state->ip)) {
+            online_state->ip_invalid = false;
+            online_state->ip_invalid = false;
+            online_state->opponent = connect_to(online_state->ip);
+            if (online_state->opponent == (-1)) {
+                online_state->is_admin = true;
+            }
+
+            *current_room = ROOM_WAITING;
+        } else {
+            online_state->ip_invalid = true;
+        }
 }
 
 void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState *online_state, Game * game, GameState *gameState) {
+    if (!online_state->waiting) {
+        online_state->waiting = true;
+        return;
+    }
+
     if (online_state->opponent != -1) {
         if (!online_state->is_admin) {
             char b[SIZE*SIZE*2]; // vai receber 2 tabs um sendo o gab

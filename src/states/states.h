@@ -41,6 +41,7 @@ typedef struct {
     char ip[15];
     bool done;
     bool ip_invalid;
+    bool waiting;
 } OnlineState;
 
 #endif
