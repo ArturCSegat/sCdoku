@@ -66,13 +66,13 @@ int main(int argc, char **argv)
             break;         // Close window event
 
         if (ev.type == ALLEGRO_EVENT_TIMER) {
-            //if (online && done && should_read(opponent)) {
-            //    online_recv(opponent, opmsg, 3);
-            //    if (strncmp(opmsg, "val", 3) == 0) {
-            //        printf("o oponente acertou uma\n");
-            //        memset(opmsg, 0, 3);
-            //    }
-            //}
+            if (online_state.done && should_read(online_state.opponent)) {
+                online_recv(online_state.opponent, opmsg, 3);
+                if (strncmp(opmsg, "val", 3) == 0) {
+                    printf("o oponente acertou uma\n");
+                    memset(opmsg, 0, 3);
+                }
+            }
             redraw = true; // Timer event signals it's time to redraw
         }
 
@@ -108,25 +108,9 @@ int main(int argc, char **argv)
 
             case ROOM_DIFFICULTY:
             {                       // Select difficulty room
-                Difficulty selected_difficulty = handle_difficulty_events(ev, logicalMouseX, logicalMouseY, &current_room, &online_state, &game);
-                if (selected_difficulty != DIFFICULTY_NONE) {
-                    int to_remove;
-                    switch (selected_difficulty) {
-                        case DIFFICULTY_EASY: to_remove = 30; break;
-                        case DIFFICULTY_MEDIUM: to_remove = 45; break;
-                        case DIFFICULTY_HARD: to_remove = 60; break;
-                        default: to_remove = 45;
-                    }
-
-                    game = new_game(SIZE, to_remove);
-                    selected_difficulty = DIFFICULTY_NONE;
-
-                    current_room = ROOM_GAME;
-
-                }
+                handle_difficulty_events(ev, logicalMouseX, logicalMouseY, &current_room, &online_state, &game);
                 break;
             }
-
 
             case ROOM_WAITING:
             {                       // Waiting connection room
@@ -138,7 +122,6 @@ int main(int argc, char **argv)
                 handle_ip_events(ev, logicalMouseX, logicalMouseY, &current_room, &online_state);
                 break;
             }
-
 
             case ROOM_GAME:
             {                       // Game room

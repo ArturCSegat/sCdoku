@@ -57,7 +57,6 @@ ON_SOCK get_oponnent() {
             exit(EXIT_FAILURE);
         }
 
-        printf("Waiting for a connection...\n");
         struct sockaddr_in client_addr;
         socklen_t client_len = sizeof(client_addr);
         int client_sock = accept(server_sock, (struct sockaddr *)&client_addr, &client_len);

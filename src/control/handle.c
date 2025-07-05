@@ -101,7 +101,7 @@ int handle_config_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY,
     return 1; // Continua rodando
 }
 
-Difficulty handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState* online_state, Game * game) {
+void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState* online_state, Game * game) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
         const int BUTTON_SIZE = 150;
         const int BUTTON_SPACING = 30;
@@ -112,15 +112,19 @@ Difficulty handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int log
         int buttonY = VIRTUAL_H / 2;
 
         int i;
-        // Verifica cliques nas dificuldades
+        int to_remove;
         for (i = 0; i < NUM_BUTTONS; i++) {
             int buttonX = startX + i * (BUTTON_SIZE + BUTTON_SPACING);
 
             if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_SIZE &&
                 logicalMouseY >= buttonY && logicalMouseY <= buttonY + BUTTON_SIZE) {
+                switch(i){
+                    case 0: to_remove = 30; break;
+                    case 1: to_remove = 45; break;
+                    case 2: to_remove = 60; break;
+                }
                 *current_room = ROOM_GAME;
-                printf("bef send\n");
-                *game = new_game(SIZE, 20);
+                *game = new_game(SIZE, to_remove);
                 char msg[SIZE*SIZE*2];
                 int row,col;
                 for (row = 0; row < SIZE; row++) {
@@ -134,15 +138,10 @@ Difficulty handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int log
                     }
                 }
                 int r = online_send(online_state->opponent, msg, SIZE*SIZE*2);
-                printf("after send: %d\n", r);
-
-
-
-                return (Difficulty)i;
+                online_state->done = true;
             }
         }
 
-        // Botão BACK
         const int BACK_BUTTON_WIDTH = 150;
         const int BACK_BUTTON_HEIGHT = 40;
         const int BACK_BUTTON_SPACING_Y = 40;
@@ -153,11 +152,8 @@ Difficulty handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int log
         if (logicalMouseX >= backButtonX && logicalMouseX <= backButtonX + BACK_BUTTON_WIDTH &&
             logicalMouseY >= backButtonY && logicalMouseY <= backButtonY + BACK_BUTTON_HEIGHT) {
             *current_room = ROOM_MENU;
-            return DIFFICULTY_NONE;
         }
     }
-
-    return DIFFICULTY_NONE;
 }
 
 void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, Game *game, OnlineState *opp) {
@@ -224,6 +220,7 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
                 if (result == 1) {
                     online_send(opp->opponent, "val", 3);
                 }
+                online_recv(opp->opponent, "val", 3);
             }
 
             if (key == ALLEGRO_KEY_BACKSPACE || key == '0') {
@@ -313,9 +310,8 @@ void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouse
     if (online_state->opponent != -1) {
         if (!online_state->is_admin) {
             char b[SIZE*SIZE*2]; // vai receber 2 tabs um sendo o gab
-            printf("bef read\n");
             online_recv(online_state->opponent, b, SIZE*SIZE*2); // blocking read
-            printf("after read\n");
+            online_state->done = true;
             game->b = create_board(SIZE);
             game->gab = create_board(SIZE);
             game->size = SIZE;
@@ -341,15 +337,12 @@ void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouse
     };
 
     online_state->opponent = connect_to(online_state->ip);
-    printf("conecao %d", online_state->opponent);
     if (online_state->opponent==(-1)) {
         online_state->opponent = get_oponnent();
-        printf("oponent: %d", online_state->opponent);
         online_state->is_admin = true;
     }
 
     if(!online_state->is_admin){
-        printf("go to wait");
         *current_room = ROOM_WAITING;
         return;
     }

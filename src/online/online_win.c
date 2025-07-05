@@ -79,7 +79,6 @@ ON_SOCK get_servidor(){
 
 ON_SOCK get_oponnent() {
     ON_SOCK server_sock = get_servidor();
-    printf("Waiting for a connection...\n");
     struct sockaddr_in client_addr;
     int client_len = sizeof(client_addr);
     ON_SOCK client_sock = accept(server_sock, (struct sockaddr *)&client_addr, &client_len);
