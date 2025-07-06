@@ -120,8 +120,8 @@ void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMo
                 logicalMouseY >= buttonY && logicalMouseY <= buttonY + BUTTON_SIZE) {
                 switch(i){
                     case 0: to_remove = 45; break;
-                    case 1: to_remove = 50; break;
-                    case 2: to_remove = 55; break;
+                    case 1: to_remove = 53; break;
+                    case 2: to_remove = 57; break;
                 }
                 *current_room = ROOM_GAME;
                 *game = new_game(SIZE, to_remove);
@@ -340,6 +340,7 @@ void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouse
                 }
             }
             game->left = c;
+            game->lifes = 3;
             gameState->startTime = al_get_time();
 
             Board gab;
