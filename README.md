@@ -61,7 +61,7 @@ cd yourproject
 ### Build the Docker image
 
 ```bash
-docker build -t allegro-net-app .
+docker build -t scdoku .
 ```
 
 ### Allow X11 access (on the host)
@@ -77,6 +77,6 @@ docker run \
   --network host \
   --env DISPLAY=$DISPLAY \
   --volume /tmp/.X11-unix:/tmp/.X11-unix \
-  allegro-net-app
+  scdoku
 ```
 
