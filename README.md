@@ -39,30 +39,16 @@ sudo dnf install allegro5-devel allegro5-image-devel allegro5-font-devel
 
 ## Como Compilar e Executar
 
-### No Linux:
 ```bash
 # Clone o repositório
 $ git clone https://github.com/ArturCSegat/sCdoku
 $ cd sCdoku
 
 # Compile o projeto
-$ gcc main.c -o sudoku.out -lallegro -lallegro_font -lallegro_image
+$ make
 
 # Execute o jogo
-$ ./sudoku.out
-```
-
-### No Windows:
-```bash
-# Clone o repositório
-> git clone https://github.com/ArturCSegat/sCdoku
-> cd sCdoku
-
-# Compile o projeto
-> gcc main.c -o sudoku.exe -lallegro -lallegro_font -lallegro_image
-
-# Execute o jogo
-> sudoku.exe
+$ ./bin/Debug/sudoku.out
 ```
 
 ## Requisitos
@@ -84,59 +70,3 @@ $ ./sudoku.out
 - Tabuleiro 9x9 com regras padrão de Sudoku
 - Controle de tempo e turnos
 - Sistema de placar visível durante o jogo
-
-## Como Jogar
-1. O jogo começa com um tabuleiro parcialmente preenchido
-2. Os jogadores se alternam em turnos
-3. Cada jogador deve preencher uma célula vazia com um número de 1 a 9
-4. As regras básicas do Sudoku se aplicam:
-   - Números não podem se repetir na mesma linha
-   - Números não podem se repetir na mesma coluna
-   - Números não podem se repetir no mesmo bloco 3x3
-5. O jogo termina quando:
-   - O tabuleiro é completamente preenchido
-   - Um jogador perde todas as vidas
-   - Um jogador consegue mais pontos que o outro e completa o tabuleiro
-
-## Estrutura do Projeto
-
-O projeto está organizado da seguinte forma:
-
-```
-sCdoku/
-├── README.md               # Documentação do projeto
-├── main.c                  # Ponto de entrada do programa e configuração da interface gráfica
-├── src/
-│   ├── control/
-│   │   └── handle.c       # Gerenciamento de eventos e interações do usuário
-│   ├── game/
-|   |   └── game.c         # Lógica do Jogo
-|   |   └── sudoku.c       # Estruturas de dados
-|   ├── draw/
-|   |   └── draw_rooms.c   # Foco em desenhar as salas
-|   ├── states/
-|   |   └── room.c         # Estrutura de dado para controle da sala
-├── assets/                # Recursos gráficos e fontes
-└── include/               # Arquivos de cabeçalho
-```
-
-### Descrição dos Componentes
-
-- `main.c`: Contém a função principal e a configuração inicial da interface gráfica usando Allegro5
-- `src/control/handle.c`: Gerencia eventos de entrada do usuário, como cliques e teclas
-- `src/game.c`: Implementa a lógica do jogo, incluindo turnos e pontuação
-- `src/sudoku.c`: Contém o algoritmo de geração e validação do tabuleiro de Sudoku
-- `src/utils.c`: Funções auxiliares para operações comuns, como validação de números e geração de números aleatórios
-- `assets/`: Diretório para armazenar recursos gráficos, como imagens e fontes
-- `include/`: Diretório para arquivos de cabeçalho (.h) que definem as interfaces das funções e estruturas de dados
-
-## Dicas para Desenvolvimento
-- Use o GCC com flags de otimização para melhor performance:
-  ```bash
-  gcc -O2 main.c -o sudoku.out -lallegro -lallegro_font -lallegro_image
-  ```
-- Para depuração, use a flag -g:
-  ```bash
-  gcc -g main.c -o sudoku.out -lallegro -lallegro_font -lallegro_image
-  ```
-- Certifique-se que todas as bibliotecas do Allegro5 estão corretamente instaladas e no PATH
