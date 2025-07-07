@@ -259,6 +259,103 @@ void draw_difficulty_room(int mouseX, int mouseY) {
                  ALLEGRO_ALIGN_LEFT, "BACK");
 }
 
+void draw_single_board(int startX, int startY, GameState *gameState, Game *game, bool isOpponent) {
+    const int GRID_SIZE = 9;
+    const int CELL_SIZE = 50;
+    const int gridWidth = GRID_SIZE * CELL_SIZE;
+    const int gridHeight = GRID_SIZE * CELL_SIZE;
+
+    int row, col;
+
+    for (row = 0; row < GRID_SIZE; row++) {
+        for (col = 0; col < GRID_SIZE; col++) {
+            int x = startX + col * CELL_SIZE;
+            int y = startY + row * CELL_SIZE;
+            al_draw_filled_rectangle(x, y, x + CELL_SIZE, y + CELL_SIZE, grayColor);
+        }
+    }
+
+    if (!isOpponent) {
+        int selectedRow = gameState->selectedRow;
+        int selectedCol = gameState->selectedCol;
+
+        if (selectedRow >= 0 && selectedCol >= 0) {
+            int boxStartRow = (selectedRow / 3) * 3;
+            int boxStartCol = (selectedCol / 3) * 3;
+
+            for (row = 0; row < GRID_SIZE; row++) {
+                for (col = 0; col < GRID_SIZE; col++) {
+                    bool sameRow = (row == selectedRow);
+                    bool sameCol = (col == selectedCol);
+                    bool sameBox = (row >= boxStartRow && row < boxStartRow + 3 &&
+                                    col >= boxStartCol && col < boxStartCol + 3);
+                    if (sameRow || sameCol || sameBox) {
+                        int x = startX + col * CELL_SIZE;
+                        int y = startY + row * CELL_SIZE;
+                        al_draw_filled_rectangle(x, y, x + CELL_SIZE, y + CELL_SIZE, sameLineColumnColor);
+                    }
+                }
+            }
+
+            char selectedVal = game->b[selectedRow][selectedCol];
+            if (selectedVal != EMPTY) {
+                for (row = 0; row < GRID_SIZE; row++) {
+                    for (col = 0; col < GRID_SIZE; col++) {
+                        if (game->b[row][col] == selectedVal) {
+                            int x = startX + col * CELL_SIZE;
+                            int y = startY + row * CELL_SIZE;
+                            al_draw_filled_rectangle(x, y, x + CELL_SIZE, y + CELL_SIZE, selectedBoxColor);
+                        }
+                    }
+                }
+            }
+
+            int selX = startX + selectedCol * CELL_SIZE;
+            int selY = startY + selectedRow * CELL_SIZE;
+            al_draw_filled_rectangle(selX, selY, selX + CELL_SIZE, selY + CELL_SIZE, selectedBoxColor);
+        }
+    }
+
+    for (row = 0; row < GRID_SIZE; row++) {
+        for (col = 0; col < GRID_SIZE; col++) {
+            int x = startX + col * CELL_SIZE;
+            int y = startY + row * CELL_SIZE;
+            if (gameState->errors[row][col] && !isOpponent) {
+                al_draw_filled_rectangle(x, y, x + CELL_SIZE, y + CELL_SIZE, errorBoxColor);
+            }
+        }
+    }
+
+    int i;
+    for (i = 0; i <= GRID_SIZE; i++) {
+        al_draw_line(startX, startY + i * CELL_SIZE, startX + gridWidth, startY + i * CELL_SIZE,
+                     lineGradeColor, (i % 3 == 0) ? 3 : 1);
+        al_draw_line(startX + i * CELL_SIZE, startY, startX + i * CELL_SIZE, startY + gridHeight,
+                     lineGradeColor, (i % 3 == 0) ? 3 : 1);
+    }
+
+    for (row = 0; row < GRID_SIZE; row++) {
+        for (col = 0; col < GRID_SIZE; col++) {
+            char value = game->b[row][col];
+            if (value == EMPTY)
+                value = gameState->attempts[row][col];
+            if (value != EMPTY) {
+                int x = startX + (col * CELL_SIZE) + CELL_SIZE / 2;
+                int y = startY + (row * CELL_SIZE) + CELL_SIZE / 4;
+
+                char text[2] = { value, '\0' };
+                ALLEGRO_COLOR color = numberColor;
+                if (gameState->errors[row][col] && !isOpponent &&
+                    gameState->selectedRow == row && gameState->selectedCol == col) {
+                    color = errorTextColor;
+                }
+
+                al_draw_text(fontNumber, color, x, y, ALLEGRO_ALIGN_CENTER, text);
+            }
+        }
+    }
+}
+
 void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game) {
     init_color();
     al_clear_to_color(backgroundColor);
@@ -274,161 +371,65 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game) {
     const int PANEL_HEIGHT = gridHeight + HEADER_HEIGHT + PANEL_PADDING * 2;
     const int TEXT_OFFSET_Y = 6;
 
-    const int panelX = (VIRTUAL_W - PANEL_WIDTH) / 2;
-    const int panelY = (VIRTUAL_H - PANEL_HEIGHT) / 2;
+    int panelX1, panelX2;
+    int panelY = (VIRTUAL_H - PANEL_HEIGHT) / 2;
 
-    al_draw_filled_rounded_rectangle(
-        panelX, panelY,
-        panelX + PANEL_WIDTH, panelY + PANEL_HEIGHT,
-        20, 20,
-        grayColor
-    );
+    if (gameState->isOnline) {
+        panelX1 = (VIRTUAL_W / 4) - (PANEL_WIDTH / 2);
+        panelX2 = (3 * VIRTUAL_W / 4) - (PANEL_WIDTH / 2);
+    } else {
+        panelX1 = (VIRTUAL_W - PANEL_WIDTH) / 2;
+        panelX2 = -1;
+    }
 
-    char statusText[64];
+    al_draw_filled_rounded_rectangle(panelX1, panelY,
+                                     panelX1 + PANEL_WIDTH, panelY + PANEL_HEIGHT,
+                                     20, 20, grayColor);
+
     const char *difficulty_str;
     switch (game->difficulty) {
-        case DIFFICULTY_EASY:
-            difficulty_str = "FACIL";
-            break;
-        case DIFFICULTY_MEDIUM:
-            difficulty_str = "MEDIO";
-            break;
-        case DIFFICULTY_HARD:
-            difficulty_str = "DIFICIL";
-            break;
-        default:
-            difficulty_str = "NONE";
-            break;
+        case DIFFICULTY_EASY: difficulty_str = "FACIL"; break;
+        case DIFFICULTY_MEDIUM: difficulty_str = "MEDIO"; break;
+        case DIFFICULTY_HARD: difficulty_str = "DIFICIL"; break;
+        default: difficulty_str = "NONE"; break;
     }
 
     char diffText[32];
     sprintf(diffText, "DIFICULDADE: %s", difficulty_str);
-    al_draw_text(fontSmall, titleColor,
-                panelX + PANEL_PADDING,
-                panelY + PANEL_PADDING + TEXT_OFFSET_Y,
-                ALLEGRO_ALIGN_LEFT, diffText);
+    al_draw_text(fontSmall, titleColor, panelX1 + PANEL_PADDING,
+                 panelY + PANEL_PADDING + TEXT_OFFSET_Y, ALLEGRO_ALIGN_LEFT, diffText);
 
     char errosText[16];
     sprintf(errosText, "ERROS: %d/3", (3 - game->lifes));
-    al_draw_text(fontSmall, titleColor,
-                panelX + PANEL_WIDTH / 2,
-                panelY + PANEL_PADDING + TEXT_OFFSET_Y,
-                ALLEGRO_ALIGN_CENTER, errosText);
+    al_draw_text(fontSmall, titleColor, panelX1 + PANEL_WIDTH / 2,
+                 panelY + PANEL_PADDING + TEXT_OFFSET_Y, ALLEGRO_ALIGN_CENTER, errosText);
 
-    // Tempo decorrido (timer) alinhado à direita da borda
     double now = al_get_time();
     int elapsedSeconds = (int)(now - gameState->startTime);
     int minutes = elapsedSeconds / 60;
     int seconds = elapsedSeconds % 60;
-
     char timerText[32];
     sprintf(timerText, "TEMPO: %02d:%02d", minutes, seconds);
+    al_draw_text(fontSmall, titleColor, panelX1 + PANEL_WIDTH - PANEL_PADDING,
+                 panelY + PANEL_PADDING + TEXT_OFFSET_Y, ALLEGRO_ALIGN_RIGHT, timerText);
 
-    al_draw_text(fontSmall, titleColor,
-                 panelX + PANEL_WIDTH - PANEL_PADDING,
-                 panelY + PANEL_PADDING + TEXT_OFFSET_Y,
-                 ALLEGRO_ALIGN_RIGHT, timerText);
+    int startX1 = panelX1 + PANEL_PADDING;
+    int startY1 = panelY + PANEL_PADDING + HEADER_HEIGHT;
 
-    const int startX = panelX + PANEL_PADDING;
-    const int startY = panelY + PANEL_PADDING + HEADER_HEIGHT;
+    draw_single_board(startX1, startY1, gameState, game, false);
 
-    int row, col;
-    int selectedRow = gameState->selectedRow;
-    int selectedCol = gameState->selectedCol;
-    for (row = 0; row < GRID_SIZE; row++) {
-        for (col = 0; col < GRID_SIZE; col++) {
-            int x = startX + col * CELL_SIZE;
-            int y = startY + row * CELL_SIZE;
+    if (gameState->isOnline) {
+        al_draw_filled_rounded_rectangle(panelX2, panelY,
+                                         panelX2 + PANEL_WIDTH, panelY + PANEL_HEIGHT,
+                                         20, 20, grayColor);
+        int startX2 = panelX2 + PANEL_PADDING;
+        int startY2 = panelY + PANEL_PADDING + HEADER_HEIGHT;
 
-            al_draw_filled_rectangle(x, y, x + CELL_SIZE, y + CELL_SIZE, grayColor);
-        }
-    }
-
-    if (selectedRow >= 0 && selectedCol >= 0) {
-        int boxStartRow = (selectedRow / 3) * 3;
-        int boxStartCol = (selectedCol / 3) * 3;
-
-        for (row = 0; row < GRID_SIZE; row++) {
-            for (col = 0; col < GRID_SIZE; col++) {
-                bool sameRow = (row == selectedRow);
-                bool sameCol = (col == selectedCol);
-                bool sameBox = (row >= boxStartRow && row < boxStartRow + 3 &&
-                                col >= boxStartCol && col < boxStartCol + 3);
-
-                if (sameRow || sameCol || sameBox) {
-                    int x = startX + col * CELL_SIZE;
-                    int y = startY + row * CELL_SIZE;
-
-                    al_draw_filled_rectangle(x, y, x + CELL_SIZE, y + CELL_SIZE, sameLineColumnColor);
-                }
-            }
-        }
-
-        if (selectedRow >= 0 && selectedCol >= 0) {
-            char selectedVal = game->b[selectedRow][selectedCol];
-    
-            if (selectedVal != EMPTY) {
-                for (row = 0; row < GRID_SIZE; row++) {
-                    for (col = 0; col < GRID_SIZE; col++) {
-                        if (game->b[row][col] == selectedVal) {
-                            int x = startX + col * CELL_SIZE;
-                            int y = startY + row * CELL_SIZE;
-                            al_draw_filled_rectangle(x, y, x + CELL_SIZE, y + CELL_SIZE, selectedBoxColor);
-                        }
-                    }
-                }
-            }
-    
-            int selX = startX + selectedCol * CELL_SIZE;
-            int selY = startY + selectedRow * CELL_SIZE;
-            al_draw_filled_rectangle(selX, selY, selX + CELL_SIZE, selY + CELL_SIZE, selectedBoxColor);
-        }
-    }
-    
-    for (row = 0; row < GRID_SIZE; row++) {
-        for (col = 0; col < GRID_SIZE; col++) {
-            int x = startX + col * CELL_SIZE;
-            int y = startY + row * CELL_SIZE;
-            if (gameState->errors[row][col]) {
-                al_draw_filled_rectangle(x, y, x + CELL_SIZE, y + CELL_SIZE, errorBoxColor);
-            }
-        }
-    }
-
-    int i;
-    // Desenhar linhas da grade
-    for (i = 0; i <= GRID_SIZE; i++) {
-        // Linhas horizontais
-        al_draw_line(startX, startY + i * CELL_SIZE,
-                     startX + gridWidth, startY + i * CELL_SIZE,
-                     lineGradeColor, (i % 3 == 0) ? 3 : 1);
-
-        // Linhas verticais
-        al_draw_line(startX + i * CELL_SIZE, startY,
-                     startX + i * CELL_SIZE, startY + gridHeight,
-                     lineGradeColor, (i % 3 == 0) ? 3 : 1);
-    }
-
-    // printa os numeros
-    for (row = 0; row < GRID_SIZE; row++) {
-        for (col = 0; col < GRID_SIZE; col++) {
-            char value = game->b[row][col];
-            if (value == EMPTY)
-                value = gameState->attempts[row][col];
-            if (value != EMPTY) {
-                int x = startX + (col * CELL_SIZE) + CELL_SIZE / 2;
-                int y = startY + (row * CELL_SIZE) + CELL_SIZE / 4;
-
-                char text[2] = { value, '\0' };
-                ALLEGRO_COLOR color = numberColor;
-                if (gameState->errors[row][col] && selectedRow == row && selectedCol == col) {
-                    color = errorTextColor;
-                }
-                al_draw_text(fontNumber, color, x, y, ALLEGRO_ALIGN_CENTER, text);
-            }
-        }
+        // coloque por aqui o conteudo da grade
+        draw_single_board(startX2, startY2, gameState, game, true); // exemplo: usa a mesma grade por enquanto
     }
 }
+
 
 void draw_waiting_room(int mouseX, int mouseY, OnlineState*online_state) {
     init_color();
@@ -501,4 +502,20 @@ void draw_ip_room(int mouseX, int mouseY, OnlineState *online_state) {
     al_draw_text(font, textButtonColor, avancarX + TEXT_PADDING_X,
                  buttonY + (BUTTON_HEIGHT - al_get_font_line_height(font)) / 2,
                  ALLEGRO_ALIGN_LEFT, "AVANCAR");
+}
+
+void draw_victory_room(int mouseX, int mouseY, OnlineState *online_state) {
+    init_color();
+    al_clear_to_color(backgroundColor);
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+
+    al_draw_text(fontTitle, titleColor, VIRTUAL_W / 2, 100, ALLEGRO_ALIGN_CENTER, "VITORIA");
+}
+
+void draw_lose_room(int mouseX, int mouseY, OnlineState *online_state) {
+    init_color();
+    al_clear_to_color(backgroundColor);
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+
+    al_draw_text(fontTitle, titleColor, VIRTUAL_W / 2, 100, ALLEGRO_ALIGN_CENTER, "DERROTA");
 }

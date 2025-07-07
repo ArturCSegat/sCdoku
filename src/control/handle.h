@@ -10,7 +10,7 @@
 #include "../online/online_unix.h"
 #endif
 
-int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room);
+int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, GameRoom *current_room);
 int handle_config_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, bool *is_fullscreen);
 void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState * online_state, Game * game, GameState *gameState);
 int handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *game_state, Game *game, OnlineState *opp);

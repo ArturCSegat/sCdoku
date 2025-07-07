@@ -14,7 +14,9 @@ typedef enum {
     ROOM_IP,
     ROOM_WAITING,
     ROOM_GAME,
-    ROOM_DIFFICULTY
+    ROOM_DIFFICULTY,
+    ROOM_VICTORY,
+    ROOM_LOSE
 } GameRoom;
 
 // Difficulty enum
@@ -27,6 +29,7 @@ typedef enum {
 
 // Game state struct
 typedef struct {
+    bool isOnline;
     int selectedRow;
     int selectedCol;
     bool errors[9][9];

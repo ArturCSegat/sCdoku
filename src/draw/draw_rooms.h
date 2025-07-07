@@ -18,5 +18,7 @@ void draw_difficulty_room(int mouseX, int mouseY);
 void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game);
 void draw_ip_room(int mouseX, int mouseY, OnlineState *online_state);
 void draw_waiting_room(int mouseX, int mouseY, OnlineState * online_state);
+void draw_victory_room(int mouseX, int mouseY, OnlineState *online_state);
+void draw_lose_room(int mouseX, int mouseY, OnlineState *online_state);
 
 #endif

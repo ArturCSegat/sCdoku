@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     online_state.ip[0] = '\0';
     online_state.ip_invalid = false;
 
-    GameState gameState = { -1, -1 , {{false}}}; // Initialize game state
+    GameState gameState = {false, -1, -1 , {{false}}}; // Initialize game state
     Game game;
 
     if(!init_allegro()) return -1;
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
         // Handle events based on current room
         switch(current_room) {
             case ROOM_MENU:         // Menu room
-                if(!handle_menu_events(ev, logicalMouseX, logicalMouseY, &current_room)){
+                if(!handle_menu_events(ev, logicalMouseX, logicalMouseY, &gameState, &current_room)){
                     al_destroy_display(display);
                     al_destroy_event_queue(event_queue);
                     al_destroy_timer(timer);
@@ -187,6 +187,14 @@ int main(int argc, char **argv)
 
                 case ROOM_GAME:         // Game room
                     draw_game_room(logicalMouseX, logicalMouseY, &gameState, &game);
+                    break;
+
+                case ROOM_VICTORY:      // Victory room
+                    draw_victory_room(logicalMouseX, logicalMouseY, &online_state);
+                    break;
+
+                case ROOM_LOSE:         // Lose room
+                    draw_lose_room(logicalMouseX, logicalMouseY, &online_state);
                     break;
             }
 

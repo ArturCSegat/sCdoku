@@ -19,7 +19,7 @@
 #include "../online/online_unix.h"
 #endif
 
-int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room){
+int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, GameRoom *current_room){
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
         const int BUTTON_WIDTH = VIRTUAL_W/3;
         const int BUTTON_HEIGHT = 50;
@@ -36,6 +36,7 @@ int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, G
         int startButtonY = firstButtonY;
         if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
             logicalMouseY >= startButtonY && logicalMouseY <= startButtonY + BUTTON_HEIGHT) {
+            gameState->isOnline = false;
             *current_room = ROOM_DIFFICULTY;
         }
 
@@ -43,6 +44,7 @@ int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, G
         int multiplayerButtonY = firstButtonY + 1 * (BUTTON_HEIGHT + BUTTON_PADDING);
         if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
             logicalMouseY >= multiplayerButtonY && logicalMouseY <= multiplayerButtonY + BUTTON_HEIGHT) {
+            gameState->isOnline = true;
             *current_room = ROOM_IP;
         }
 
@@ -164,15 +166,29 @@ void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMo
 
 void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, Game *game, OnlineState *opp) {
     opp->waiting = false;
+
+    const int GRID_SIZE = 9;
+    const int CELL_SIZE = 50;
+    const int gridWidth = GRID_SIZE * CELL_SIZE;
+    const int gridHeight = GRID_SIZE * CELL_SIZE;
+
+    const int PANEL_PADDING = 10;
+    const int HEADER_HEIGHT = 40;
+    const int PANEL_WIDTH = gridWidth + PANEL_PADDING * 2;
+    const int PANEL_HEIGHT = gridHeight + HEADER_HEIGHT + PANEL_PADDING * 2;
+
+    int panelX, startX, startY;
+    if (gameState->isOnline) {
+        panelX = (VIRTUAL_W / 4) - (PANEL_WIDTH / 2);  // Painel do jogador local (esquerda)
+    } else {
+        panelX = (VIRTUAL_W - PANEL_WIDTH) / 2; // Centralizado
+    }
+
+    startX = panelX + PANEL_PADDING;
+    startY = (VIRTUAL_H - PANEL_HEIGHT) / 2 + PANEL_PADDING + HEADER_HEIGHT;
+
+    // Clique do mouse
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
-        const int GRID_SIZE = 9;
-        const int CELL_SIZE = 50;
-        int gridWidth = GRID_SIZE * CELL_SIZE;
-        int gridHeight = GRID_SIZE * CELL_SIZE;
-
-        int startX = (VIRTUAL_W - gridWidth) / 2;
-        int startY = (VIRTUAL_H - gridHeight) / 2 + 40;
-
         if (logicalMouseX >= startX && logicalMouseX < startX + gridWidth &&
             logicalMouseY >= startY && logicalMouseY < startY + gridHeight) {
 
@@ -184,7 +200,8 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
         }
     }
 
-    if(ev.type == ALLEGRO_EVENT_KEY_DOWN){
+    // Teclas de navegação (setas)
+    if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
         int row = gameState->selectedRow;
         int col = gameState->selectedCol;
 
@@ -207,6 +224,7 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
         gameState->selectedCol = col;
     }
 
+    // Digitação de número ou backspace
     if (ev.type == ALLEGRO_EVENT_KEY_CHAR) {
         int row = gameState->selectedRow;
         int col = gameState->selectedCol;
@@ -218,19 +236,18 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
                 Move m = move(key, row, col);
                 int result = play(m, game);
 
-                // Só atualiza visualmente se a jogada for aceita (mesmo correta ou incorreta)
                 if (result == 1 || game->b[row][col] == key) {
                     gameState->attempts[row][col] = key;
                     gameState->errors[row][col] = (key != game->gab[row][col]);
                 }
 
-                if (result == 1) {
-                    online_send(opp->opponent, "val", 3);
+                if (result == 1 && gameState->isOnline) {
+                    online_send(opp->opponent, "val", 3); // sinaliza jogada
                 }
             }
 
             if (ev.keyboard.keycode == ALLEGRO_KEY_BACKSPACE || key == '0') {
-                // Evita apagar números fixos
+                // Evita apagar número fixo
                 if (game->gab[row][col] != game->b[row][col]) {
                     Move m = move(EMPTY, row, col);
                     play(m, game);
@@ -241,6 +258,7 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
         }
     }
 }
+
 
 void handle_ip_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState *online_state, GameState *gameState) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
@@ -267,6 +285,7 @@ void handle_ip_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, Ga
             online_state->ip[0] = '\0';
             online_state->ip_invalid = false;
         }
+
 
         // Botão AVANÇAR
         if (mouseX >= avancarX && mouseX <= avancarX + BUTTON_WIDTH &&
