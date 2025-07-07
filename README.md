@@ -4,52 +4,23 @@ Uma implementação do jogo Sudoku com interface gráfica usando a biblioteca Al
 
 ## Instalação do Allegro5
 
-### No Ubuntu/Debian:
-```bash
-# Atualize os pacotes
-sudo apt-get update
-
-# Instale as dependências básicas
-sudo apt-get install build-essential
-
-# Instale o Allegro5 e suas bibliotecas
-sudo apt-get install liballegro5-dev liballegro-acodec5-dev liballegro-audio5-dev \
-    liballegro-color5-dev liballegro-dialog5-dev liballegro-image5-dev \
-    liballegro-ttf5-dev
-```
-
-### No Fedora:
-```bash
-# Instale o Allegro5 e suas bibliotecas
-sudo dnf install allegro5-devel allegro5-image-devel allegro5-font-devel
-```
+### No linux:
+Veja a sessão sobre Docker (Está em ingles pq eu pedi pro gpt)
 
 ### No Windows:
-1. Baixe o instalador do Allegro5 do site oficial: https://liballeg.org/download.html
-2. Execute o instalador e siga as instruções na tela
-3. Adicione o caminho do Allegro5 ao PATH do sistema:
-   - Clique com o botão direito no Menu Iniciar
-   - Selecione "Sistema"
-   - Clique em "Configurações do Sistema"
-   - Clique em "Variáveis de Ambiente"
-   - Em "Variáveis do Sistema", selecione "Path"
-   - Clique em "Editar"
-   - Clique em "Novo"
-   - Adicione o caminho onde o Allegro5 foi instalado (exemplo: C:\allegro5\bin)
-
-## Como Compilar e Executar
-
+1. Baixe o [allegro e o compilador](http://www.dropbox.com/s/jaswa5mw3nb3ogn/Allegro.zip?dl=1)
+2. Descompate e ponha em C:\Allegro
+3. clone o repositório
 ```bash
-# Clone o repositório
 $ git clone https://github.com/ArturCSegat/sCdoku
-$ cd sCdoku
-
-# Compile o projeto
-$ make
-
-# Execute o jogo
-$ ./bin/Debug/sudoku.out
 ```
+4. abra o arquivo .cbp no codeblocks
+5. Clique em projeto e inclua os arquivos, todos menos os com o sufixo _unix
+6. Vá em configurações e em 'toolchain executables'
+7. Selecione o compilador C:\Allegro\AllegroMingW
+8. Configure o compilador de C para g++.exe
+9. Tente rodar o programa
+10. Boa sorte 
 
 ## Requisitos
 - GCC ou outro compilador C (MinGW no Windows)
