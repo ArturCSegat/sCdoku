@@ -70,3 +70,42 @@ $ ./bin/Debug/sudoku.out
 - Tabuleiro 9x9 com regras padrão de Sudoku
 - Controle de tempo e turnos
 - Sistema de placar visível durante o jogo
+
+
+## Rodar no Docker (Exclusivo Linux)
+
+### 🐳 Requirements
+
+- Docker installed
+- Linux system (for `--network host` and X11 GUI support)
+- X11 server (already available on most Linux desktops)
+
+### 1. Clone the project
+
+```bash
+git clone https://github.com/youruser/yourproject.git
+cd yourproject
+```
+
+### Build the Docker image
+
+```bash
+docker build -t allegro-net-app .
+```
+
+### Allow X11 access (on the host)
+
+```
+xhost +local:root
+```
+
+### Run the container
+
+```
+docker run \
+  --network host \
+  --env DISPLAY=$DISPLAY \
+  --volume /tmp/.X11-unix:/tmp/.X11-unix \
+  allegro-net-app
+```
+
