@@ -7,10 +7,10 @@
 #include "../states/states.h"
 
 // create new game
-Game new_game(int size, int to_remove) {
+Game new_game(int size, int to_remove, int lifes) {
     Game game;
     game.points = 0;
-    game.lifes = 3;
+    game.lifes = lifes;
     game.size = size;
     game.to_remove = to_remove;
     game.difficulty = DIFFICULTY_NONE;

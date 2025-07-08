@@ -5,6 +5,8 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_color.h>
 #include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_primitives.h>
 
 #include "../config.h"
@@ -12,6 +14,7 @@
 #include "../game/game.h"
 #include "../draw/draw_rooms.h"
 #include "./validation/ip_validation.h"
+#include "../audio/audio.h"
 
 #ifdef _WIN32
 #include "../online/online_win.h"
@@ -126,7 +129,7 @@ void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMo
                     case 2: to_remove = 57; break;
                 }
                 *current_room = ROOM_GAME;
-                *game = new_game(SIZE, to_remove);
+                *game = new_game(SIZE, to_remove, 3);
                 switch(i){
                     case 0: game->difficulty = DIFFICULTY_EASY; break;
                     case 1: game->difficulty = DIFFICULTY_MEDIUM; break;
@@ -154,7 +157,14 @@ void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMo
     }
 }
 
-void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, Game *game, OnlineState *opp) {
+void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, Game *game, OnlineState *opp, GameRoom *current_room) {
+    if(game->left == 0){
+        //*current_room = ROOM_VICTORY;
+    }
+    if(game->lifes == 0){
+        //*current_room = ROOM_LOSE;
+    }
+    
     opp->waiting = false;
 
     const int GRID_SIZE = 9;
@@ -228,11 +238,16 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
                 Move m = move(key, row, col);
                 int result = play(m, game);
 
+                // se jogada possivel
                 if (result == 1 || game->b[row][col] == key) {
+                    if(key == game->gab[row][col]){
+                        al_play_sample(som_acerto, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+                    }else{
+                        al_play_sample(som_erro, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+                    }
                     gameState->attempts[row][col] = key;
                     gameState->errors[row][col] = (key != game->gab[row][col]);
                 }
-
             }
 
             if (ev.keyboard.keycode == ALLEGRO_KEY_BACKSPACE || key == '0') {
@@ -240,6 +255,7 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
                 if (game->gab[row][col] != game->b[row][col]) {
                     Move m = move(EMPTY, row, col);
                     play(m, game);
+                    al_play_sample(som_erro, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
                     gameState->errors[row][col] = false;
                     gameState->attempts[row][col] = EMPTY;
                 }
@@ -249,8 +265,7 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
     }
 
     return;
-update:
-
+    update:
     if (gameState->isOnline) {
         char msg[_max_game_str_len] = {0};
         to_char(msg, _max_game_str_len, game, gameState);

@@ -488,7 +488,7 @@
 	<allegro5/allegro.h>
 	<allegro5/allegro_image.h>
 
-1751928869 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
+1752015878 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
 	<stdio.h>
 	<stdbool.h>
 	<allegro5/allegro.h>
@@ -496,13 +496,17 @@
 	<allegro5/allegro_font.h>
 	<allegro5/allegro_color.h>
 	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_audio.h>
+	<allegro5/allegro_acodec.h>
 	<allegro5/allegro_primitives.h>
+	<string.h>
 	"src/game/sudoku.h"
 	"src/states/states.h"
 	"src/draw/draw_rooms.h"
 	"src/control/handle.h"
 	"src/config.h"
 	"src/game/game.h"
+	"src/audio/audio.h"
 	"src/online/online_win.h"
 	"src/online/online_unix.h"
 
@@ -524,11 +528,11 @@
 1372639132 c:\allegro\allegromingw\include\allegro5\allegro_primitives.h
 	<allegro5/allegro.h>
 
-1751928640 c:\users\dell\documents\codeblocksproject\scdoku\src\states\states.h
+1752007410 c:\users\dell\documents\codeblocksproject\scdoku\src\states\states.h
 	"../online/online_win.h"
 	"../online/online_unix.h"
 
-1751912281 c:\users\dell\documents\codeblocksproject\scdoku\src\game\game.h
+1752012250 c:\users\dell\documents\codeblocksproject\scdoku\src\game\game.h
 	"sudoku.h"
 	"../states/states.h"
 
@@ -543,7 +547,7 @@
 	"allegro5/allegro.h"
 	"allegro5/allegro_font.h"
 
-1751912660 c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.h
+1752007410 c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.h
 	<allegro5/allegro.h>
 	<allegro5/allegro_image.h>
 	<allegro5/allegro_ttf.h>
@@ -551,7 +555,7 @@
 	"../states/states.h"
 	"../game/game.h"
 
-1751929360 source:c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.c
+1752007482 source:c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.c
 	<stdbool.h>
 	<stdio.h>
 	<allegro5/allegro.h>
@@ -564,10 +568,11 @@
 	"../states/states.h"
 	"../game/game.h"
 
-1751912281 source:c:\users\dell\documents\codeblocksproject\scdoku\src\game\game.c
+1752012254 source:c:\users\dell\documents\codeblocksproject\scdoku\src\game\game.c
 	"sudoku.h"
 	"game.h"
 	<stdio.h>
+	<stdlib.h>
 	<stdbool.h>
 	"../states/states.h"
 
@@ -578,13 +583,13 @@
 
 1750380023 c:\users\dell\documents\codeblocksproject\scdoku\src\control\vars.h
 
-1751928845 c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.h
+1752011795 c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.h
 	"../states/states.h"
 	"../game/game.h"
 	"../online/online_win.h"
 	"../online/online_unix.h"
 
-1751929505 source:c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.c
+1752017959 source:c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.c
 	<stdbool.h>
 	<stdio.h>
 	<allegro5/allegro.h>
@@ -592,12 +597,15 @@
 	<allegro5/allegro_font.h>
 	<allegro5/allegro_color.h>
 	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_audio.h>
+	<allegro5/allegro_acodec.h>
 	<allegro5/allegro_primitives.h>
 	"../config.h"
 	"../states/states.h"
 	"../game/game.h"
 	"../draw/draw_rooms.h"
 	"./validation/ip_validation.h"
+	"../audio/audio.h"
 	"../online/online_win.h"
 	"../online/online_unix.h"
 
@@ -748,4 +756,20 @@
 	"../game/game.h"
 	"../online/online_win.h"
 	"../online/online_unix.h"
+
+1372639132 c:\allegro\allegromingw\include\allegro5\allegro_audio.h
+	"allegro5/allegro.h"
+
+1362338300 c:\allegro\allegromingw\include\allegro5\allegro_acodec.h
+	"allegro5/allegro.h"
+	"allegro5/allegro_audio.h"
+
+1752015179 c:\users\dell\documents\codeblocksproject\scdoku\src\audio\audio.h
+	<allegro5/allegro_audio.h>
+
+1752015844 source:c:\users\dell\documents\codeblocksproject\scdoku\src\audio\audio.c
+	<stdio.h>
+	<allegro5/allegro_audio.h>
+	<allegro5/allegro_acodec.h>
+	"audio.h"
 

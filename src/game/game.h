@@ -23,7 +23,7 @@ typedef struct {
     Board gab;
 } Game;
 
-Game new_game(int size, int to_remove);
+Game new_game(int size, int to_remove, int lifes);
 void destroy_game(Game* g);
 Move move(char val, int row, int col);
 int play(Move m, Game* g);

@@ -5,6 +5,8 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_color.h>
 #include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_primitives.h>
 #include <string.h>
 
@@ -14,6 +16,7 @@
 #include "src/control/handle.h"
 #include "src/config.h"
 #include "src/game/game.h"
+#include "src/audio/audio.h"
 
 #ifdef _WIN32
 #include "src/online/online_win.h"
@@ -50,8 +53,10 @@ int main(int argc, char **argv)
     Game game;
 
     GameState op_game_state = {false, -1, -1 , {{false}}}; // Initialize game state
-    memset(gameState.attempts, EMPTY, 81);
-    Game op_game = new_game(9, 81);
+    memset(op_game_state.attempts, EMPTY, 81);
+
+
+    Game op_game = new_game(9, 81, 3);
 
     if(!init_allegro()) return -1;
 
@@ -129,7 +134,7 @@ int main(int argc, char **argv)
 
             case ROOM_GAME:
             {                       // Game room
-                handle_game_events(ev, logicalMouseX, logicalMouseY, &gameState, &game, &online_state);
+                handle_game_events(ev, logicalMouseX, logicalMouseY, &gameState, &game, &online_state, &current_room);
                 break;
             }
         }
@@ -210,7 +215,7 @@ int main(int argc, char **argv)
             al_flip_display();
         }
     }
-
+    destroy_audio();
     // Clean up resources
     al_destroy_bitmap(virtual_screen);
     destroy_font();
@@ -259,6 +264,22 @@ bool init_allegro() {
         fprintf(stderr, "Failed to install mouse!\n");
         return false;
     }
+
+    if (!al_install_audio()) {
+        fprintf(stderr, "Failed to install audio!\n");
+        return false;
+    }
+    
+    if (!al_init_acodec_addon()) {
+        fprintf(stderr, "Failed to initialize audio codec addon!\n");
+        return false;
+    }
+    
+    if (!al_reserve_samples(16)) {
+        fprintf(stderr, "Failed to reserve samples!\n");
+        return false;
+    }
+    init_audio();
 
     al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_WINDOWED);
 

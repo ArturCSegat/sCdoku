@@ -328,7 +328,8 @@ void draw_single_board(int startX, int startY, GameState *gameState, Game *game,
     }
 
     // Draw grid lines
-    for (int i = 0; i <= GRID_SIZE; i++) {
+    int i;
+    for (i = 0; i <= GRID_SIZE; i++) {
         al_draw_line(startX, startY + i * CELL_SIZE, startX + gridWidth, startY + i * CELL_SIZE,
                      lineGradeColor, (i % 3 == 0) ? 3 : 1);
         al_draw_line(startX + i * CELL_SIZE, startY, startX + i * CELL_SIZE, startY + gridHeight,
@@ -502,7 +503,7 @@ void draw_ip_room(int mouseX, int mouseY, OnlineState *online_state) {
 
     const int BUTTON_HEIGHT = 50;
     const int BUTTON_PADDING = 20;
-    
+
     int BUTTON_WIDTH = (BOX_WIDTH - BUTTON_PADDING) / 2;
     int buttonY = boxY + BOX_HEIGHT + 80;
     int voltarX = boxX;
