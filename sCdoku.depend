@@ -488,7 +488,7 @@
 	<allegro5/allegro.h>
 	<allegro5/allegro_image.h>
 
-1752015878 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
+1752018672 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
 	<stdio.h>
 	<stdbool.h>
 	<allegro5/allegro.h>
@@ -589,7 +589,7 @@
 	"../online/online_win.h"
 	"../online/online_unix.h"
 
-1752017959 source:c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.c
+1752018599 source:c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.c
 	<stdbool.h>
 	<stdio.h>
 	<allegro5/allegro.h>

@@ -135,6 +135,12 @@ int main(int argc, char **argv)
             case ROOM_GAME:
             {                       // Game room
                 handle_game_events(ev, logicalMouseX, logicalMouseY, &gameState, &game, &online_state, &current_room);
+                if(game.left == 0 || op_game.lifes == 0){
+                    current_room = ROOM_VICTORY;
+                }
+                if(game.lifes == 0 || op_game.left == 0){
+                    current_room = ROOM_LOSE;
+                }
                 break;
             }
         }

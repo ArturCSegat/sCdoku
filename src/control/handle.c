@@ -158,13 +158,6 @@ void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMo
 }
 
 void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, Game *game, OnlineState *opp, GameRoom *current_room) {
-    if(game->left == 0){
-        //*current_room = ROOM_VICTORY;
-    }
-    if(game->lifes == 0){
-        //*current_room = ROOM_LOSE;
-    }
-    
     opp->waiting = false;
 
     const int GRID_SIZE = 9;
