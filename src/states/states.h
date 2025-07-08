@@ -21,10 +21,10 @@ typedef enum {
 
 // Difficulty enum
 typedef enum {
-    DIFFICULTY_NONE = -1,
-    DIFFICULTY_EASY = 0,
-    DIFFICULTY_MEDIUM = 1,
-    DIFFICULTY_HARD = 2
+    DIFFICULTY_NONE = 0,
+    DIFFICULTY_EASY = 1,
+    DIFFICULTY_MEDIUM = 2,
+    DIFFICULTY_HARD = 3
 } Difficulty;
 
 // Game state struct

@@ -6,6 +6,7 @@
 #include <allegro5/allegro_color.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
+#include <string.h>
 
 #include "src/game/sudoku.h"
 #include "src/states/states.h"
@@ -19,6 +20,7 @@
 #else
 #include "src/online/online_unix.h"
 #endif
+
 
 // Allegro resources
 ALLEGRO_DISPLAY *display = NULL;        // Main display window
@@ -44,7 +46,12 @@ int main(int argc, char **argv)
     online_state.ip_invalid = false;
 
     GameState gameState = {false, -1, -1 , {{false}}}; // Initialize game state
+    memset(gameState.attempts, EMPTY, 81);
     Game game;
+
+    GameState op_game_state = {false, -1, -1 , {{false}}}; // Initialize game state
+    memset(gameState.attempts, EMPTY, 81);
+    Game op_game = new_game(9, 81);
 
     if(!init_allegro()) return -1;
 
@@ -54,8 +61,7 @@ int main(int argc, char **argv)
     int logicalMouseX = 0, logicalMouseY = 0; // Logical mouse position (virtual coordinates)
     bool is_fullscreen = false;               // Fullscreen mode flag
 
-    // Main game loop
-    char opmsg[3] = {0};
+    char opmsg[_max_game_str_len] = {0}; 
     while (1)
     {
         ALLEGRO_EVENT ev;
@@ -67,11 +73,9 @@ int main(int argc, char **argv)
 
         if (ev.type == ALLEGRO_EVENT_TIMER) {
             if (online_state.done && should_read(online_state.opponent)) {
-                online_recv(online_state.opponent, opmsg, 3);
-                if (strncmp(opmsg, "val", 3) == 0) {
-                    printf("o oponente acertou uma\n");
-                    memset(opmsg, 0, 3);
-                }
+                int r = online_recv(online_state.opponent, opmsg, _max_game_str_len);
+                handle_msg(opmsg, r+1, &op_game_state, &op_game);
+                memset(opmsg, 0, _max_game_str_len);
             }
             redraw = true; // Timer event signals it's time to redraw
         }
@@ -186,7 +190,7 @@ int main(int argc, char **argv)
                     break;
 
                 case ROOM_GAME:         // Game room
-                    draw_game_room(logicalMouseX, logicalMouseY, &gameState, &game);
+                    draw_game_room(logicalMouseX, logicalMouseY, &gameState, &game, &op_game_state, &op_game);
                     break;
 
                 case ROOM_VICTORY:      // Victory room

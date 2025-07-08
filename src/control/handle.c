@@ -132,19 +132,9 @@ void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMo
                     case 1: game->difficulty = DIFFICULTY_MEDIUM; break;
                     case 2: game->difficulty = DIFFICULTY_HARD; break;
                 }
-                char msg[SIZE*SIZE*2];
-                int row,col;
-                for (row = 0; row < SIZE; row++) {
-                    for (col = 0; col < SIZE; col++) {
-                        msg[row*SIZE + col] = game->b[row][col];
-                    }
-                }
-                for (row = 0; row < SIZE; row++) {
-                    for (col = 0; col < SIZE; col++) {
-                        msg[(SIZE*SIZE) + row*SIZE + col] = game->gab[row][col];
-                    }
-                }
-                int r = online_send(online_state->opponent, msg, SIZE*SIZE*2);
+                char msg[_max_game_str_len] = {0};
+                to_char(msg, _max_game_str_len, game, gameState);
+                int r = online_send(online_state->opponent, msg, _max_game_str_len);
                 online_state->done = true;
                 gameState->startTime = al_get_time();
             }
@@ -198,6 +188,7 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
             gameState->selectedRow = row;
             gameState->selectedCol = col;
         }
+        goto update;
     }
 
     // Teclas de navegação (setas)
@@ -222,6 +213,7 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
 
         gameState->selectedRow = row;
         gameState->selectedCol = col;
+        goto update;
     }
 
     // Digitação de número ou backspace
@@ -241,9 +233,6 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
                     gameState->errors[row][col] = (key != game->gab[row][col]);
                 }
 
-                if (result == 1 && gameState->isOnline) {
-                    online_send(opp->opponent, "val", 3); // sinaliza jogada
-                }
             }
 
             if (ev.keyboard.keycode == ALLEGRO_KEY_BACKSPACE || key == '0') {
@@ -255,8 +244,19 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
                     gameState->attempts[row][col] = EMPTY;
                 }
             }
+            goto update;
         }
     }
+
+    return;
+update:
+
+    if (gameState->isOnline) {
+        char msg[_max_game_str_len] = {0};
+        to_char(msg, _max_game_str_len, game, gameState);
+        online_send(opp->opponent, msg, _max_game_str_len); // sinaliza jogada
+    }
+
 }
 
 
@@ -344,30 +344,14 @@ void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouse
 
     if (online_state->opponent != -1) {
         if (!online_state->is_admin) {
-            char b[SIZE*SIZE*2]; // vai receber 2 tabs um sendo o gab
-            online_recv(online_state->opponent, b, SIZE*SIZE*2); // blocking read
+            char b[_max_game_str_len]; // vai receber 2 tabs um sendo o gab
+            online_recv(online_state->opponent, b, _max_game_str_len); // blocking read
             online_state->done = true;
             game->b = create_board(SIZE);
             game->gab = create_board(SIZE);
             game->size = SIZE;
-            int c = 0;
-            int i, j;
-            for (i = 0; i < SIZE; i++) {
-                for (j = 0; j < SIZE; j++) {
-                    if (b[i*SIZE + j] == EMPTY) c++;
-                    game->b[i][j] = b[i*SIZE + j];
-                }
-            }
-            game->left = c;
-            game->lifes = 3;
-            gameState->startTime = al_get_time();
+            from_char(b, _max_game_str_len, game, gameState);
 
-            Board gab;
-            for (i = 0; i < SIZE; i++) {
-                for (j = 0; j < SIZE; j++) {
-                    game->gab[i][j] = b[(SIZE*SIZE) + i*SIZE + j];
-                }
-            }
             *current_room = ROOM_GAME;
             return;
         }
@@ -385,3 +369,9 @@ void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouse
     }
     *current_room = ROOM_DIFFICULTY;
 }
+
+
+void handle_msg(char*msg, int msg_len, GameState * op_game_state, Game * op_game) {
+    from_char(msg, msg_len, op_game, op_game_state);
+}
+

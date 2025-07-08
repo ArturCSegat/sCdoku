@@ -1,6 +1,7 @@
 #include "sudoku.h"
 #include "game.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 
 #include "../states/states.h"
@@ -63,4 +64,77 @@ int play(Move m, Game* game) {
     game->b[m.row][m.col] = m.v;
     game->lifes--;
     return 0;
+}
+
+void to_char(char *dst, int len, Game *g, GameState *gs) {
+    if (len < _max_game_str_len) {
+        fprintf(stderr, "to_char do Game recebeu um buffer pequeno demais");
+        exit(69);
+    }
+
+    int row,col;
+    int i = 0;
+    for (row = 0; row < g->size; row++) {
+        for (col = 0; col < g->size; col++) {
+            dst[row*g->size + col] = g->b[row][col];
+            i++;
+        }
+    }
+    dst[i++] = '0'+gs->selectedRow;
+    dst[i++] = ':';
+    dst[i++] = '0'+gs->selectedCol;
+    dst[i++] = '0'+g->difficulty;
+    dst[i++] = '0'+g->lifes;
+    
+    int ei=0, ej=0;
+    for(ei = 0;ei<9;ei++) {
+        for(ej = 0;ej<9;ej++) {
+            dst[i++] = gs->errors[ei][ej] ? '1':'0';
+        }
+    }
+
+    for(ei = 0;ei<9;ei++) {
+        for(ej = 0;ej<9;ej++) {
+            dst[i++] = gs->attempts[ei][ej];
+        }
+    }
+
+    dst[i++] = 0;
+}
+
+void from_char(char *from, int len, Game*g, GameState *gs) {
+    if (len < _max_game_str_len) {
+        fprintf(stderr, "from_char do Game recebeu uma msg de tamanho inesperado: crashando");
+        exit(69);
+    }
+
+    int c = 0;
+    int i, j, k = 0;
+    for (i = 0; i < g->size; i++) {
+        for (j = 0; j < g->size; j++) {
+            if (from[i*g->size + j] == EMPTY) c++;
+            g->b[i][j] = from[i*g->size + j];
+            k++;
+        }
+    }
+    int row = from[k++]-'0';
+    k++;
+    int col = from[k++]-'0';
+    gs->selectedRow = row;
+    gs->selectedCol = col;
+    g->difficulty = from[k++]-'0';
+    g->lifes = from[k++]-'0';
+
+    int ei=0, ej=0;
+    for(ei = 0;ei<9;ei++) {
+        for(ej = 0;ej<9;ej++) {
+            gs->errors[ei][ej] = from[k++]=='1';
+        }
+    }
+
+    for(ei = 0;ei<9;ei++) {
+        for(ej = 0;ej<9;ej++) {
+            gs->attempts[ei][ej] = from[k++];
+        }
+    }
 }
