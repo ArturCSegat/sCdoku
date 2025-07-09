@@ -58,9 +58,9 @@ void init_color(){
     backgroundColor = al_map_rgb(10, 10, 15);
     grayColor = al_map_rgb(44, 47, 66);
     boxColor = al_map_rgb(18, 20, 27);
-    buttonColor = al_map_rgb(36, 39, 59);         
-    buttonHoverColor = al_map_rgb(46, 49, 79);  
-    textButtonColor = al_map_rgb(102, 153, 255); 
+    buttonColor = al_map_rgb(36, 39, 59);
+    buttonHoverColor = al_map_rgb(46, 49, 79);
+    textButtonColor = al_map_rgb(102, 153, 255);
     titleColor = al_map_rgb(176, 180, 208);
     selectedBoxColor = al_map_rgb(37, 47, 109);
     sameLineColumnColor = al_map_rgb(31, 33, 46);
@@ -138,58 +138,111 @@ void draw_menu_room(int mouseX, int mouseY) {
     }
 }
 
-// Draw the configuration room
 void draw_config_room(int mouseX, int mouseY) {
     init_color();
     al_clear_to_color(backgroundColor);
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
-    al_draw_filled_rectangle(0, 0,
-        (VIRTUAL_W/3), VIRTUAL_H,
-        grayColor);
-
+    const float sidebarWidth = VIRTUAL_W / 3;
+    al_draw_filled_rectangle(0, 0, sidebarWidth, VIRTUAL_H, grayColor);
     al_draw_text(fontTitle, titleColor, 30, 100, ALLEGRO_ALIGN_LEFT, "sCdoku");
 
-    // Calculate button layout
+    // Ajuste largura segura para os botões padrão
+    const int SAFE_BUTTON_WIDTH = sidebarWidth - 2 * LEFT_MARGIN;
+
+    // Botões padrão
     const int NUM_BUTTONS = 2;
+    const char* menuOptions[] = { "FULL SCREEN", "BACK" };
     int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
-    int firstButtonY = (VIRTUAL_H - totalMenuHeight) / 2;
+    int firstButtonY = (VIRTUAL_H - totalMenuHeight) / 2 - 80;
     int buttonX = LEFT_MARGIN;
 
-    // Configuration options
-    const char* menuOptions[] = { "FULL SCREEN", "BACK" };
-
     int i;
-    // Draw buttons
     for (i = 0; i < NUM_BUTTONS; i++) {
         int buttonY = firstButtonY + i * (BUTTON_HEIGHT + BUTTON_PADDING);
 
-        // Check if mouse is over this button
         bool isHovered =
             mouseX >= buttonX &&
-            mouseX <= buttonX + BUTTON_WIDTH &&
+            mouseX <= buttonX + SAFE_BUTTON_WIDTH &&
             mouseY >= buttonY &&
             mouseY <= buttonY + BUTTON_HEIGHT;
 
-        // Set appropriate button color
-        ALLEGRO_COLOR color = isHovered ?
-            buttonHoverColor :
-            buttonColor;
+        ALLEGRO_COLOR color = isHovered ? buttonHoverColor : buttonColor;
 
-        // Draw button background
-        al_draw_filled_rectangle(buttonX, buttonY,
-            BUTTON_WIDTH - LEFT_MARGIN,
+        al_draw_filled_rounded_rectangle(
+            buttonX, buttonY,
+            buttonX + SAFE_BUTTON_WIDTH,
             buttonY + BUTTON_HEIGHT,
-            color);
+            12, 12, color
+        );
 
-        // Draw centered text
         int textHeight = al_get_font_line_height(font);
         int textY = buttonY + (BUTTON_HEIGHT - textHeight) / 2;
 
         al_draw_text(font, textButtonColor,
-                    buttonX + TEXT_PADDING_X, textY,
-                    ALLEGRO_ALIGN_LEFT, menuOptions[i]);
+                     buttonX + SAFE_BUTTON_WIDTH / 2,
+                     textY,
+                     ALLEGRO_ALIGN_CENTER, menuOptions[i]);
     }
+
+    // Controle volume layout
+    int controlCenterX = buttonX + SAFE_BUTTON_WIDTH / 2;
+    int circleRadius = 16;
+    int spacingX = 45;
+    int spacingY = 100;
+
+    // Posicionamento Y para blocos de volume
+    int soundLabelY = firstButtonY + NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) + 60;
+    int soundControlY = soundLabelY + 30;
+
+    int musicLabelY = soundControlY + spacingY;
+    int musicControlY = musicLabelY + 30;
+
+    // Posicionamento X dos botões
+    int soundMinusX = controlCenterX - spacingX;
+    int soundPlusX  = controlCenterX + spacingX;
+    int musicMinusX = controlCenterX - spacingX;
+    int musicPlusX  = controlCenterX + spacingX;
+
+    // Detectar hover do mouse para os botões
+    bool soundMinusHover = (mouseX >= soundMinusX - circleRadius && mouseX <= soundMinusX + circleRadius &&
+                            mouseY >= soundControlY - circleRadius && mouseY <= soundControlY + circleRadius);
+    bool soundPlusHover  = (mouseX >= soundPlusX - circleRadius && mouseX <= soundPlusX + circleRadius &&
+                            mouseY >= soundControlY - circleRadius && mouseY <= soundControlY + circleRadius);
+
+    bool musicMinusHover = (mouseX >= musicMinusX - circleRadius && mouseX <= musicMinusX + circleRadius &&
+                            mouseY >= musicControlY - circleRadius && mouseY <= musicControlY + circleRadius);
+    bool musicPlusHover  = (mouseX >= musicPlusX - circleRadius && mouseX <= musicPlusX + circleRadius &&
+                            mouseY >= musicControlY - circleRadius && mouseY <= musicControlY + circleRadius);
+
+    // Ajuste para posicionar labels um pouco acima dos controles com padding maior
+    int labelOffsetY = 35; // Padding maior entre label e controle
+
+    // Desenhar labels centralizadas acima dos controles
+    al_draw_text(font, al_map_rgb(255, 255, 255), controlCenterX, soundLabelY - labelOffsetY, ALLEGRO_ALIGN_CENTER, "SOUND VOLUME");
+    al_draw_text(font, al_map_rgb(255, 255, 255), controlCenterX, musicLabelY - labelOffsetY, ALLEGRO_ALIGN_CENTER, "MUSIC VOLUME");
+
+    // Desenhar botões SOUND VOLUME
+    al_draw_filled_circle(soundMinusX, soundControlY, circleRadius, soundMinusHover ? buttonHoverColor : buttonColor);
+    al_draw_text(font, textButtonColor, soundMinusX, soundControlY - al_get_font_line_height(font)/2, ALLEGRO_ALIGN_CENTER, "-");
+
+    char soundStr[10];
+    snprintf(soundStr, sizeof(soundStr), "%.1f", SOUND_VOLUME);
+    al_draw_text(font, al_map_rgb(255, 255, 255), controlCenterX, soundControlY - al_get_font_line_height(font)/2, ALLEGRO_ALIGN_CENTER, soundStr);
+
+    al_draw_filled_circle(soundPlusX, soundControlY, circleRadius, soundPlusHover ? buttonHoverColor : buttonColor);
+    al_draw_text(font, textButtonColor, soundPlusX, soundControlY - al_get_font_line_height(font)/2, ALLEGRO_ALIGN_CENTER, "+");
+
+    // Desenhar botões MUSIC VOLUME
+    al_draw_filled_circle(musicMinusX, musicControlY, circleRadius, musicMinusHover ? buttonHoverColor : buttonColor);
+    al_draw_text(font, textButtonColor, musicMinusX, musicControlY - al_get_font_line_height(font)/2, ALLEGRO_ALIGN_CENTER, "-");
+
+    char musicStr[10];
+    snprintf(musicStr, sizeof(musicStr), "%.1f", MUSIC_VOLUME);
+    al_draw_text(font, al_map_rgb(255, 255, 255), controlCenterX, musicControlY - al_get_font_line_height(font)/2, ALLEGRO_ALIGN_CENTER, musicStr);
+
+    al_draw_filled_circle(musicPlusX, musicControlY, circleRadius, musicPlusHover ? buttonHoverColor : buttonColor);
+    al_draw_text(font, textButtonColor, musicPlusX, musicControlY - al_get_font_line_height(font)/2, ALLEGRO_ALIGN_CENTER, "+");
 }
 
 // Draw the difficulty selection room
@@ -318,7 +371,7 @@ void draw_single_board(int startX, int startY, GameState *gameState, Game *game,
         if (selectedVal != EMPTY) {
             for (row = 0; row < GRID_SIZE; row++) {
                 for (col = 0; col < GRID_SIZE; col++) {
-                    if (game->b[row][col] == selectedVal) {
+                    if (game->b[row][col] == selectedVal && !hide) {
                         int x = startX + col * CELL_SIZE;
                         int y = startY + row * CELL_SIZE;
                         al_draw_filled_rectangle(x, y, x + CELL_SIZE, y + CELL_SIZE, selectedBoxColor);

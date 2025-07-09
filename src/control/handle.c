@@ -9,6 +9,7 @@
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_primitives.h>
 #include <string.h>
+#include <math.h>
 
 #include "../config.h"
 #include "../states/states.h"
@@ -25,7 +26,7 @@
 
 int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, GameRoom *current_room) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
-        const int BUTTON_WIDTH = 250;
+        const int BUTTON_WIDTH = VIRTUAL_W/3;
         const int BUTTON_HEIGHT = 50;
         const int BUTTON_PADDING = 20;
         const int LEFT_MARGIN = 30;
@@ -33,7 +34,7 @@ int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, G
 
         int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
         int boxWidth = BUTTON_WIDTH + 2 * LEFT_MARGIN;
-        int boxHeight = 500;
+        int boxHeight = 450;
         int boxX = (VIRTUAL_W - boxWidth) / 2;
         int boxY = (VIRTUAL_H - boxHeight) / 2;
         int buttonX = boxX + LEFT_MARGIN;
@@ -73,42 +74,79 @@ int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, G
     return 1; // Continua no menu
 }
 
-int handle_config_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, bool *is_fullscreen){
-    if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
-        const int BUTTON_WIDTH = VIRTUAL_W/3;
-        const int BUTTON_HEIGHT = 50;
-        const int BUTTON_PADDING = 20;
-        const int LEFT_MARGIN = 30;
-        const int NUM_BUTTONS = 2;
+void handle_config_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameRoom *current_room) {
+    if (ev.type != ALLEGRO_EVENT_MOUSE_BUTTON_DOWN || ev.mouse.button != 1)
+        return;
 
-        int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
-        int firstButtonY = (VIRTUAL_H - totalMenuHeight) / 2;
-        int buttonX = LEFT_MARGIN;
+    const int LEFT_MARGIN = 30;
+    const int BUTTON_HEIGHT = 50;
+    const int BUTTON_PADDING = 20;
+    const float sidebarWidth = VIRTUAL_W / 3;
+    const int SAFE_BUTTON_WIDTH = sidebarWidth - 2 * LEFT_MARGIN;
+    const int NUM_BUTTONS = 2;
+    const int BUTTON_Y_START = (VIRTUAL_H - (NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING)) / 2 - 80;
+    const int buttonX = LEFT_MARGIN;
 
-        // FULL SCREEN
-        int fullScreenButtonY = firstButtonY;
-        if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
-            logicalMouseY >= fullScreenButtonY && logicalMouseY <= fullScreenButtonY + BUTTON_HEIGHT) {
-            *is_fullscreen = !*is_fullscreen;
-            al_toggle_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, *is_fullscreen);
-            destroy_font();
-            init_font();
+    int fullScreenY = BUTTON_Y_START;
+    bool clickedFullscreen = mouseX >= buttonX && mouseX <= buttonX + SAFE_BUTTON_WIDTH &&
+                             mouseY >= fullScreenY && mouseY <= fullScreenY + BUTTON_HEIGHT;
+    int backY = fullScreenY + BUTTON_HEIGHT + BUTTON_PADDING;
+    bool clickedBack = mouseX >= buttonX && mouseX <= buttonX + SAFE_BUTTON_WIDTH &&
+                       mouseY >= backY && mouseY <= backY + BUTTON_HEIGHT;
 
-            if (!*is_fullscreen) {
-                al_set_window_position(display, 0, 0);
-            }
-        }
-
-        // BACK
-        int backButtonY = firstButtonY + (BUTTON_HEIGHT + BUTTON_PADDING);
-        if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
-            logicalMouseY >= backButtonY && logicalMouseY <= backButtonY + BUTTON_HEIGHT) {
-            *current_room = ROOM_MENU;
-        }
+    if (clickedFullscreen) {
+        al_toggle_display_flag(al_get_current_display(), ALLEGRO_FULLSCREEN_WINDOW, true);
+        return;
     }
 
-    return 1; // Continua rodando
+    if (clickedBack) {
+        *current_room = ROOM_MENU;
+        return;
+    }
+
+    int controlCenterX = buttonX + SAFE_BUTTON_WIDTH / 2;
+    int spacingX = 45;
+    int spacingY = 100;
+    int circleRadius = 16;
+
+    int soundControlY = BUTTON_Y_START + NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) + 60 + 30;
+    int musicControlY = soundControlY + spacingY;
+
+    int soundMinusX = controlCenterX - spacingX;
+    int soundPlusX = controlCenterX + spacingX;
+
+    if (mouseX >= soundMinusX - circleRadius && mouseX <= soundMinusX + circleRadius &&
+        mouseY >= soundControlY - circleRadius && mouseY <= soundControlY + circleRadius) {
+        SOUND_VOLUME = fmaxf(0.0f, SOUND_VOLUME - 0.1f);
+        al_play_sample(som_scc, SOUND_VOLUME, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+        return;
+    }
+
+    if (mouseX >= soundPlusX - circleRadius && mouseX <= soundPlusX + circleRadius &&
+        mouseY >= soundControlY - circleRadius && mouseY <= soundControlY + circleRadius) {
+        SOUND_VOLUME = fminf(1.0f, SOUND_VOLUME + 0.1f);
+        al_play_sample(som_scc, SOUND_VOLUME, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+        return;
+    }
+
+    int musicMinusX = controlCenterX - spacingX;
+    int musicPlusX = controlCenterX + spacingX;
+
+    if (mouseX >= musicMinusX - circleRadius && mouseX <= musicMinusX + circleRadius &&
+        mouseY >= musicControlY - circleRadius && mouseY <= musicControlY + circleRadius) {
+        MUSIC_VOLUME = fmaxf(0.0f, MUSIC_VOLUME - 0.1f);
+        al_play_sample(som_scc, MUSIC_VOLUME, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+        return;
+    }
+
+    if (mouseX >= musicPlusX - circleRadius && mouseX <= musicPlusX + circleRadius &&
+        mouseY >= musicControlY - circleRadius && mouseY <= musicControlY + circleRadius) {
+        MUSIC_VOLUME = fminf(1.0f, MUSIC_VOLUME + 0.1f);
+        al_play_sample(som_scc, MUSIC_VOLUME, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+        return;
+    }
 }
+
 
 void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState* online_state, Game * game, GameState *gameState, GameState * op_game_state, Game * op_game) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {

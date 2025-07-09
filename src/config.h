@@ -3,6 +3,8 @@
 
 #define VIRTUAL_W 1200
 #define VIRTUAL_H 700
+extern float SOUND_VOLUME;
+extern float MUSIC_VOLUME;
 
 #define SIZE 9
 

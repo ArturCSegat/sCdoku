@@ -31,6 +31,9 @@ ALLEGRO_EVENT_QUEUE *event_queue = NULL; // Event queue for handling user input
 ALLEGRO_TIMER *timer = NULL;            // Timer for game loop
 ALLEGRO_BITMAP *virtual_screen = NULL;  // Virtual screen for scaling
 
+float SOUND_VOLUME = 1.0;
+float MUSIC_VOLUME = 1.0;
+
 // Function declarations
 bool init_allegro();     // Initialize Allegro library and resources
 void init_vars();        // Initialize game variables

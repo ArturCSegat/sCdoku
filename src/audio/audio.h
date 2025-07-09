@@ -5,6 +5,7 @@
 
 extern ALLEGRO_SAMPLE *som_acerto;
 extern ALLEGRO_SAMPLE *som_erro;
+extern ALLEGRO_SAMPLE *som_scc;
 
 void init_audio();
 void destroy_audio();

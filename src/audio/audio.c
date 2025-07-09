@@ -5,6 +5,7 @@
 
 ALLEGRO_SAMPLE *som_acerto = NULL;
 ALLEGRO_SAMPLE *som_erro = NULL;
+ALLEGRO_SAMPLE *som_scc = NULL;
 
 void init_audio() {
     if (!al_install_audio()) {
@@ -22,8 +23,9 @@ void init_audio() {
 
     som_acerto = al_load_sample("./assets/audio/acerto.ogg");
     som_erro = al_load_sample("./assets/audio/erro.ogg");
+    som_scc = al_load_sample("./assets/audio/scc.ogg");
 
-    if (!som_acerto || !som_erro) {
+    if (!som_acerto || !som_erro || !som_scc) {
         fprintf(stderr, "Erro ao carregar arquivos de audio.\n");
         exit(1);
     }
@@ -32,5 +34,6 @@ void init_audio() {
 void destroy_audio() {
     if (som_acerto) al_destroy_sample(som_acerto);
     if (som_erro) al_destroy_sample(som_erro);
+    if (som_scc) al_destroy_sample(som_scc);
     al_uninstall_audio();
 }

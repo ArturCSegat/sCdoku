@@ -488,7 +488,7 @@
 	<allegro5/allegro.h>
 	<allegro5/allegro_image.h>
 
-1752018672 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
+1752035899 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
 	<stdio.h>
 	<stdbool.h>
 	<allegro5/allegro.h>
@@ -532,7 +532,7 @@
 	"../online/online_win.h"
 	"../online/online_unix.h"
 
-1752012250 c:\users\dell\documents\codeblocksproject\scdoku\src\game\game.h
+1752029712 c:\users\dell\documents\codeblocksproject\scdoku\src\game\game.h
 	"sudoku.h"
 	"../states/states.h"
 
@@ -555,7 +555,7 @@
 	"../states/states.h"
 	"../game/game.h"
 
-1752007482 source:c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.c
+1752036522 source:c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.c
 	<stdbool.h>
 	<stdio.h>
 	<allegro5/allegro.h>
@@ -568,7 +568,7 @@
 	"../states/states.h"
 	"../game/game.h"
 
-1752012254 source:c:\users\dell\documents\codeblocksproject\scdoku\src\game\game.c
+1752029712 source:c:\users\dell\documents\codeblocksproject\scdoku\src\game\game.c
 	"sudoku.h"
 	"game.h"
 	<stdio.h>
@@ -576,20 +576,20 @@
 	<stdbool.h>
 	"../states/states.h"
 
-1751912281 c:\users\dell\documents\codeblocksproject\scdoku\src\config.h
+1752035899 c:\users\dell\documents\codeblocksproject\scdoku\src\config.h
 
 1372639132 c:\allegro\allegromingw\include\allegro5\allegro_color.h
 	"allegro5/allegro.h"
 
 1750380023 c:\users\dell\documents\codeblocksproject\scdoku\src\control\vars.h
 
-1752011795 c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.h
+1752035890 c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.h
 	"../states/states.h"
 	"../game/game.h"
 	"../online/online_win.h"
 	"../online/online_unix.h"
 
-1752018599 source:c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.c
+1752089123 source:c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.c
 	<stdbool.h>
 	<stdio.h>
 	<allegro5/allegro.h>
@@ -600,6 +600,8 @@
 	<allegro5/allegro_audio.h>
 	<allegro5/allegro_acodec.h>
 	<allegro5/allegro_primitives.h>
+	<string.h>
+	<math.h>
 	"../config.h"
 	"../states/states.h"
 	"../game/game.h"
@@ -764,10 +766,10 @@
 	"allegro5/allegro.h"
 	"allegro5/allegro_audio.h"
 
-1752015179 c:\users\dell\documents\codeblocksproject\scdoku\src\audio\audio.h
+1752037813 c:\users\dell\documents\codeblocksproject\scdoku\src\audio\audio.h
 	<allegro5/allegro_audio.h>
 
-1752015844 source:c:\users\dell\documents\codeblocksproject\scdoku\src\audio\audio.c
+1752037875 source:c:\users\dell\documents\codeblocksproject\scdoku\src\audio\audio.c
 	<stdio.h>
 	<allegro5/allegro_audio.h>
 	<allegro5/allegro_acodec.h>
