@@ -1,7 +1,7 @@
 # Compiler and flags
 CC = gcc
 CFLAGS = -Wall -std=c11 -I./src -I./src/control -I./src/draw -I./src/game -I./src/states -I./src/online
-LDFLAGS = -lallegro -lallegro_font -lallegro_ttf -lallegro_image -lallegro_primitives -lm
+LDFLAGS = -lallegro -lallegro_font -lallegro_ttf -lallegro_image -lallegro_primitives -lallegro_audio -lallegro_acodec -lm
 
 # Enable AddressSanitizer with ASAN=1
 ifeq ($(ASAN),1)
@@ -10,7 +10,7 @@ ifeq ($(ASAN),1)
 endif
 
 # Project paths
-SRC_DIRS = src src/control src/control/validation src/draw src/game
+SRC_DIRS = src src/control src/control/validation src/draw src/game src/audio
 OBJ_DIR = obj/Debug
 BIN_DIR = bin/Debug
 TARGET = $(BIN_DIR)/sudoku

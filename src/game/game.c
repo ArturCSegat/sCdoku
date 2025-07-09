@@ -85,6 +85,11 @@ void to_char(char *dst, int len, Game *g, GameState *gs) {
     dst[i++] = '0'+gs->selectedCol;
     dst[i++] = '0'+g->difficulty;
     dst[i++] = '0'+g->lifes;
+
+    char first_digit = ((g->left - (g->left % 10)) / 10) + '0';
+    char second_digit = (g->left%10) + '0';
+    dst[i++] = first_digit;
+    dst[i++] = second_digit;
     
     int ei=0, ej=0;
     for(ei = 0;ei<9;ei++) {
@@ -124,6 +129,9 @@ void from_char(char *from, int len, Game*g, GameState *gs) {
     gs->selectedCol = col;
     g->difficulty = from[k++]-'0';
     g->lifes = from[k++]-'0';
+    char first_digit = from[k++]-'0';
+    char second_digit = from[k++]-'0';
+    g->left = first_digit*10 + second_digit;
 
     int ei=0, ej=0;
     for(ei = 0;ei<9;ei++) {

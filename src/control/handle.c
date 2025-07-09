@@ -352,12 +352,10 @@ void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouse
 
     if (online_state->opponent != -1) {
         if (!online_state->is_admin) {
-            char b[_max_game_str_len]; // vai receber 2 tabs um sendo o gab
-            online_recv(online_state->opponent, b, _max_game_str_len); // blocking read
+            char b[_max_game_str_len]; 
+            online_recv(online_state->opponent, b, _max_game_str_len); 
             online_state->done = true;
-            game->b = create_board(SIZE);
-            game->gab = create_board(SIZE);
-            game->size = SIZE;
+            *game = new_game(SIZE, 81, 3);
             from_char(b, _max_game_str_len, game, gameState);
 
             *current_room = ROOM_GAME;
