@@ -377,6 +377,7 @@ void draw_single_board(int startX, int startY, GameState *gameState, Game *game,
 }
 
 void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game, GameState *op_gameState, Game *op_game) {
+    op_gameState->startTime = gameState->startTime;
     init_color();
     al_clear_to_color(backgroundColor);
 

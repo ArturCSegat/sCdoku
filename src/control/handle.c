@@ -8,6 +8,7 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_primitives.h>
+#include <string.h>
 
 #include "../config.h"
 #include "../states/states.h"
@@ -109,7 +110,7 @@ int handle_config_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY,
     return 1; // Continua rodando
 }
 
-void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState* online_state, Game * game, GameState *gameState) {
+void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState* online_state, Game * game, GameState *gameState, GameState * op_game_state, Game * op_game) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
         const int BUTTON_SIZE = 150;
         const int BUTTON_SPACING = 30;
@@ -133,6 +134,7 @@ void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMo
                 }
                 *current_room = ROOM_GAME;
                 *game = new_game(SIZE, to_remove, 3);
+                gameState->startTime = al_get_time();
                 switch(i){
                     case 0: game->difficulty = DIFFICULTY_EASY; break;
                     case 1: game->difficulty = DIFFICULTY_MEDIUM; break;
@@ -142,7 +144,7 @@ void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMo
                 to_char(msg, _max_game_str_len, game, gameState);
                 int r = online_send(online_state->opponent, msg, _max_game_str_len);
                 online_state->done = true;
-                gameState->startTime = al_get_time();
+                from_char(msg, _max_game_str_len, op_game, op_game_state);
             }
         }
 
@@ -347,7 +349,7 @@ void handle_ip_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, Ga
         }
 }
 
-void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState *online_state, Game * game, GameState *gameState) {
+void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState *online_state, Game * game, GameState *gameState, GameState * op_game_state, Game * op_game) {
     if (!online_state->waiting) {
         online_state->waiting = true;
         return;
@@ -360,6 +362,10 @@ void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouse
             online_state->done = true;
             *game = new_game(SIZE, 81, 3);
             from_char(b, _max_game_str_len, game, gameState);
+            from_char(b, _max_game_str_len, op_game, op_game_state);
+            gameState->startTime = al_get_time();
+
+
 
             *current_room = ROOM_GAME;
             return;

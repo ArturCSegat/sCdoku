@@ -117,13 +117,13 @@ int main(int argc, char **argv)
 
             case ROOM_DIFFICULTY:
             {                       // Select difficulty room
-                handle_difficulty_events(ev, logicalMouseX, logicalMouseY, &current_room, &online_state, &game, &gameState);
+                handle_difficulty_events(ev, logicalMouseX, logicalMouseY, &current_room, &online_state, &game, &gameState, &op_game_state, &op_game);
                 break;
             }
 
             case ROOM_WAITING:
             {                       // Waiting connection room
-                handle_waiting_events(ev, logicalMouseX, logicalMouseY, &current_room, &online_state, &game, &gameState);
+                handle_waiting_events(ev, logicalMouseX, logicalMouseY, &current_room, &online_state, &game, &gameState, &op_game_state, &op_game);
                 break;
             }
             case ROOM_IP:
