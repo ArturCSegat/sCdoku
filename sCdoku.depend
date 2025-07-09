@@ -773,3 +773,135 @@
 	<allegro5/allegro_acodec.h>
 	"audio.h"
 
+1752025343 source:c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\main.c
+	<stdio.h>
+	<stdbool.h>
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_font.h>
+	<allegro5/allegro_color.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_audio.h>
+	<allegro5/allegro_acodec.h>
+	<allegro5/allegro_primitives.h>
+	<string.h>
+	"src/game/sudoku.h"
+	"src/states/states.h"
+	"src/draw/draw_rooms.h"
+	"src/control/handle.h"
+	"src/config.h"
+	"src/game/game.h"
+	"src/audio/audio.h"
+	"src/online/online_win.h"
+	"src/online/online_unix.h"
+
+1752025343 c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\game\sudoku.h
+
+1752025343 c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\states\states.h
+	"../online/online_win.h"
+	"../online/online_unix.h"
+
+1752025343 c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\online\online_win.h
+	<winsock2.h>
+	<ws2tcpip.h>
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+
+1752025343 c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\online\online_unix.h
+	<stdbool.h>
+
+1752025343 c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\draw\draw_rooms.h
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_primitives.h>
+	"../states/states.h"
+	"../game/game.h"
+
+1752029242 c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\game\game.h
+	"sudoku.h"
+	"../states/states.h"
+
+1752025343 c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\control\handle.h
+	"../states/states.h"
+	"../game/game.h"
+	"../online/online_win.h"
+	"../online/online_unix.h"
+
+1752025343 c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\config.h
+
+1752025343 c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\audio\audio.h
+	<allegro5/allegro_audio.h>
+
+1752025343 source:c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\audio\audio.c
+	<stdio.h>
+	<allegro5/allegro_audio.h>
+	<allegro5/allegro_acodec.h>
+	"audio.h"
+
+1752029965 source:c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\control\handle.c
+	<stdbool.h>
+	<stdio.h>
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_font.h>
+	<allegro5/allegro_color.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_audio.h>
+	<allegro5/allegro_acodec.h>
+	<allegro5/allegro_primitives.h>
+	"../config.h"
+	"../states/states.h"
+	"../game/game.h"
+	"../draw/draw_rooms.h"
+	"./validation/ip_validation.h"
+	"../audio/audio.h"
+	"../online/online_win.h"
+	"../online/online_unix.h"
+
+1752025343 c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\control\validation\ip_validation.h
+	<stdbool.h>
+
+1752025343 source:c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\control\validation\ip_validation.c
+	<stdbool.h>
+	<stddef.h>
+	<ctype.h>
+	<string.h>
+
+1752029622 source:c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\draw\draw_rooms.c
+	<stdbool.h>
+	<stdio.h>
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_font.h>
+	<allegro5/allegro_color.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_primitives.h>
+	"../config.h"
+	"../states/states.h"
+	"../game/game.h"
+
+1752029242 source:c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\game\game.c
+	"sudoku.h"
+	"game.h"
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	"../states/states.h"
+
+1752025343 source:c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\game\sudoku.c
+	"sudoku.h"
+	<string.h>
+	<math.h>
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+
+1752025343 source:c:\users\izabr\onedrive\햞ea de trabalho\engcomp\algoritmosz\scdoku\src\online\online_win.c
+	<winsock2.h>
+	<ws2tcpip.h>
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+

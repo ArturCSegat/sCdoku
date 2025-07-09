@@ -22,18 +22,21 @@
 #include "../online/online_unix.h"
 #endif
 
-int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, GameRoom *current_room){
+int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, GameRoom *current_room) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
-        const int BUTTON_WIDTH = VIRTUAL_W/3;
+        const int BUTTON_WIDTH = 250;
         const int BUTTON_HEIGHT = 50;
         const int BUTTON_PADDING = 20;
         const int LEFT_MARGIN = 30;
         const int NUM_BUTTONS = 4;
 
         int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
-        int firstButtonY = (VIRTUAL_H - totalMenuHeight) / 2;
-        int buttonX = LEFT_MARGIN;
-
+        int boxWidth = BUTTON_WIDTH + 2 * LEFT_MARGIN;
+        int boxHeight = 500;
+        int boxX = (VIRTUAL_W - boxWidth) / 2;
+        int boxY = (VIRTUAL_H - boxHeight) / 2;
+        int buttonX = boxX + LEFT_MARGIN;
+        int firstButtonY = boxY + (boxHeight - totalMenuHeight) / 2 + 20;
 
         // START
         int startButtonY = firstButtonY;
@@ -62,11 +65,11 @@ int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, G
         int exitButtonY = firstButtonY + 3 * (BUTTON_HEIGHT + BUTTON_PADDING);
         if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
             logicalMouseY >= exitButtonY && logicalMouseY <= exitButtonY + BUTTON_HEIGHT) {
-            return 0; // Sinaliza que deve sair
+            return 0; // Sair do jogo
         }
     }
 
-    return 1; // Continua rodando
+    return 1; // Continua no menu
 }
 
 int handle_config_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, bool *is_fullscreen){

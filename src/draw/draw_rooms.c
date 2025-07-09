@@ -20,6 +20,7 @@ const int TEXT_PADDING_X = 10;     // Padding for text
 
 // Color variables
 ALLEGRO_COLOR backgroundColor;     // Background color
+ALLEGRO_COLOR boxColor;            // cor da caixinha dos menus
 ALLEGRO_COLOR buttonColor;        // Normal button color
 ALLEGRO_COLOR buttonHoverColor;   // Button color when hovered
 ALLEGRO_COLOR textButtonColor;    // Text color
@@ -56,9 +57,10 @@ void destroy_font(){
 void init_color(){
     backgroundColor = al_map_rgb(10, 10, 15);
     grayColor = al_map_rgb(44, 47, 66);
-    buttonColor = al_map_rgb(50, 122, 232);
-    buttonHoverColor = al_map_rgb(23, 96, 207);
-    textButtonColor = al_map_rgb(255, 255, 255);
+    boxColor = al_map_rgb(18, 20, 27);
+    buttonColor = al_map_rgb(36, 39, 59);         
+    buttonHoverColor = al_map_rgb(46, 49, 79);  
+    textButtonColor = al_map_rgb(102, 153, 255); 
     titleColor = al_map_rgb(176, 180, 208);
     selectedBoxColor = al_map_rgb(37, 47, 109);
     sameLineColumnColor = al_map_rgb(31, 33, 46);
@@ -77,14 +79,25 @@ void draw_menu_room(int mouseX, int mouseY) {
     // Calculate button layout
     const int NUM_BUTTONS = 4;
     int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
-    int firstButtonY = (VIRTUAL_H - totalMenuHeight) / 2;
-    int buttonX = LEFT_MARGIN;
+    int boxWidth = BUTTON_WIDTH + 2 * LEFT_MARGIN;
+    int boxHeight = 450;
+    int boxX = (VIRTUAL_W - boxWidth) / 2;
+    int boxY = (VIRTUAL_H - boxHeight) / 2;
+    int buttonX = boxX + LEFT_MARGIN;
+    int firstButtonY = boxY + (boxHeight - totalMenuHeight) / 2 + 40;
 
-    al_draw_filled_rectangle(0, 0,
-        (VIRTUAL_W/3), VIRTUAL_H,
-        grayColor);
+    al_draw_filled_rounded_rectangle(
+        boxX, boxY,
+        boxX + boxWidth,
+        boxY + boxHeight,
+        20, 20,
+        boxColor);
 
-    al_draw_text(fontTitle, titleColor, 30, 100, ALLEGRO_ALIGN_LEFT, "sCdoku");
+    al_draw_text(fontTitle, titleColor,
+             boxX + boxWidth / 2,
+             boxY + 30,
+             ALLEGRO_ALIGN_CENTER,
+             "sCdoku");
 
     // Menu options
     const char* menuOptions[] = { "SOLO", "MULTIPLAYER", "CONFIGURACOES", "SAIR" };
@@ -107,18 +120,21 @@ void draw_menu_room(int mouseX, int mouseY) {
             buttonColor;
 
         // Draw button background
-        al_draw_filled_rectangle(buttonX, buttonY,
-                                BUTTON_WIDTH - LEFT_MARGIN,
-                                buttonY + BUTTON_HEIGHT,
-                                color);
+        al_draw_filled_rounded_rectangle(
+                            buttonX, buttonY,
+                            buttonX + BUTTON_WIDTH,
+                            buttonY + BUTTON_HEIGHT,
+                            10, 10, // raio de curvatura
+                            color
+        );
 
         // Draw centered text
         int textHeight = al_get_font_line_height(font);
         int textY = buttonY + (BUTTON_HEIGHT - textHeight) / 2;
 
         al_draw_text(font, textButtonColor,
-                    buttonX + TEXT_PADDING_X, textY,
-                    ALLEGRO_ALIGN_LEFT, menuOptions[i]);
+                buttonX + BUTTON_WIDTH / 2, textY,
+                ALLEGRO_ALIGN_CENTER, menuOptions[i]);
     }
 }
 
