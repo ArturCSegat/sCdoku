@@ -10,7 +10,7 @@ ifeq ($(ASAN),1)
 endif
 
 # Project paths
-SRC_DIRS = src src/control src/control/validation src/draw src/game src/audio
+SRC_DIRS = src src/control src/control/validation src/draw src/game src/audio src/save
 OBJ_DIR = obj/Debug
 BIN_DIR = bin/Debug
 TARGET = $(BIN_DIR)/sudoku

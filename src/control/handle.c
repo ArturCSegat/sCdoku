@@ -25,6 +25,7 @@
 #include "../online/online_unix.h"
 #endif
 
+void clean_game(Game * game, GameState *gameState);
 int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, GameRoom *current_room) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
         const int BUTTON_WIDTH = VIRTUAL_W/3;
