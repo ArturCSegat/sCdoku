@@ -461,23 +461,13 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game, Ga
                                      panelX1 + PANEL_WIDTH, panelY + PANEL_HEIGHT,
                                      20, 20, grayColor);
 
-    const char *difficulty_str1;
-    switch (game->difficulty) {
-        case DIFFICULTY_EASY: difficulty_str1 = "FACIL"; break;
-        case DIFFICULTY_MEDIUM: difficulty_str1 = "MEDIO"; break;
-        case DIFFICULTY_HARD: difficulty_str1 = "DIFICIL"; break;
-        default: difficulty_str1 = "NONE"; break;
-    }
-
-    char diffText1[32];
-    sprintf(diffText1, "DIFICULDADE: %s", difficulty_str1);
-    al_draw_text(fontSmall, titleColor, panelX1 + PANEL_PADDING,
-                 panelY + PANEL_PADDING + TEXT_OFFSET_Y, ALLEGRO_ALIGN_LEFT, diffText1);
-
     char errosText1[16];
     sprintf(errosText1, "ERROS: %d/3", (3 - game->lifes));
+    al_draw_text(fontSmall, titleColor, panelX1 + PANEL_PADDING,
+                 panelY + PANEL_PADDING + TEXT_OFFSET_Y, ALLEGRO_ALIGN_LEFT, errosText1);
+
     al_draw_text(fontSmall, titleColor, panelX1 + PANEL_WIDTH / 2,
-                 panelY + PANEL_PADDING + TEXT_OFFSET_Y, ALLEGRO_ALIGN_CENTER, errosText1);
+                 panelY + PANEL_PADDING + TEXT_OFFSET_Y, ALLEGRO_ALIGN_CENTER, "SEU  TABULEIRO");
 
     double now = al_get_time();
     int elapsedSeconds1 = (int)(now - gameState->startTime);
@@ -498,23 +488,13 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game, Ga
                                          panelX2 + PANEL_WIDTH, panelY + PANEL_HEIGHT,
                                          20, 20, grayColor);
 
-        const char *difficulty_str2;
-        switch (op_game->difficulty) {
-            case DIFFICULTY_EASY: difficulty_str2 = "FACIL"; break;
-            case DIFFICULTY_MEDIUM: difficulty_str2 = "MEDIO"; break;
-            case DIFFICULTY_HARD: difficulty_str2 = "DIFICIL"; break;
-            default: difficulty_str2 = "NONE"; break;
-        }
-
-        char diffText2[32];
-        sprintf(diffText2, "DIFICULDADE: %s", difficulty_str2);
-        al_draw_text(fontSmall, titleColor, panelX2 + PANEL_PADDING,
-                     panelY + PANEL_PADDING + TEXT_OFFSET_Y, ALLEGRO_ALIGN_LEFT, diffText2);
-
         char errosText2[16];
         sprintf(errosText2, "ERROS: %d/3", (3 - op_game->lifes));
+        al_draw_text(fontSmall, titleColor, panelX2 + PANEL_PADDING,
+                     panelY + PANEL_PADDING + TEXT_OFFSET_Y, ALLEGRO_ALIGN_LEFT, errosText2);
+    
         al_draw_text(fontSmall, titleColor, panelX2 + PANEL_WIDTH / 2,
-                     panelY + PANEL_PADDING + TEXT_OFFSET_Y, ALLEGRO_ALIGN_CENTER, errosText2);
+                     panelY + PANEL_PADDING + TEXT_OFFSET_Y, ALLEGRO_ALIGN_CENTER, "OPONENTE");
 
         int elapsedSeconds2 = (int)(now - op_gameState->startTime);
         int minutes2 = elapsedSeconds2 / 60;
