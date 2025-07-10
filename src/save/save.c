@@ -6,7 +6,7 @@
 void salvar_historico(int tempo_em_segundos, const char* dificuldade, int erros, bool venceu) {
     FILE* arquivo = fopen(HISTORICO_PATH, "a");
     if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo de histórico!\n");
+        printf("Erro ao abrir o arquivo de historico!\n");
         return;
     }
 
@@ -30,7 +30,7 @@ void salvar_historico(int tempo_em_segundos, const char* dificuldade, int erros,
 int ler_historico(Partida partidas[], int max_partidas) {
     FILE* arquivo = fopen(HISTORICO_PATH, "r");
     if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo de histórico para leitura!\n");
+        printf("Erro ao abrir o arquivo de historico para leitura!\n");
         return 0;
     }
 

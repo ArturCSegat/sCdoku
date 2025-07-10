@@ -695,7 +695,7 @@ void draw_history_room(int mouseX, int mouseY) {
         al_draw_textf(fontSmall, textButtonColor, boxX + 180, y, 0, "%d s", partidas[i].tempo);
         al_draw_textf(fontSmall, textButtonColor, boxX + 270, y, 0, "%s", partidas[i].dificuldade);
         al_draw_textf(fontSmall, textButtonColor, boxX + 400, y, 0, "%d", partidas[i].erros);
-        al_draw_textf(fontSmall, textButtonColor, boxX + 470, y, 0, "%s", partidas[i].venceu ? "Vitória" : "Derrota");
+        al_draw_textf(fontSmall, textButtonColor, boxX + 470, y, 0, "%s", partidas[i].venceu ? "Vitoria" : "Derrota");
         y += 30;
     }
 

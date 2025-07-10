@@ -93,15 +93,6 @@ int main(int argc, char **argv)
             mouseY = ev.mouse.y;    // Track mouse movement events, store physical mouse position
         }
 
-        struct ponto {
-            float x;
-            float y;
-        };
-        struct quadrad {
-            struct ponto A;
-            struct ponto B;
-        };
-
         // Handle events based on current room
         switch(current_room) {
             case ROOM_MENU:         // Menu room
