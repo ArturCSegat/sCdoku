@@ -20,5 +20,6 @@ void draw_ip_room(int mouseX, int mouseY, OnlineState *online_state);
 void draw_waiting_room(int mouseX, int mouseY, OnlineState * online_state);
 void draw_victory_room(int mouseX, int mouseY, OnlineState *online_state);
 void draw_lose_room(int mouseX, int mouseY, OnlineState *online_state);
+void draw_history_room(int mouseX, int mouseY);
 
 #endif

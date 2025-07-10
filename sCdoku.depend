@@ -488,7 +488,7 @@
 	<allegro5/allegro.h>
 	<allegro5/allegro_image.h>
 
-1752035899 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
+1752121218 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
 	<stdio.h>
 	<stdbool.h>
 	<allegro5/allegro.h>
@@ -528,7 +528,7 @@
 1372639132 c:\allegro\allegromingw\include\allegro5\allegro_primitives.h
 	<allegro5/allegro.h>
 
-1752007410 c:\users\dell\documents\codeblocksproject\scdoku\src\states\states.h
+1752120730 c:\users\dell\documents\codeblocksproject\scdoku\src\states\states.h
 	"../online/online_win.h"
 	"../online/online_unix.h"
 
@@ -547,7 +547,7 @@
 	"allegro5/allegro.h"
 	"allegro5/allegro_font.h"
 
-1752007410 c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.h
+1752121234 c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.h
 	<allegro5/allegro.h>
 	<allegro5/allegro_image.h>
 	<allegro5/allegro_ttf.h>
@@ -555,7 +555,7 @@
 	"../states/states.h"
 	"../game/game.h"
 
-1752114092 source:c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.c
+1752121876 source:c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.c
 	<stdbool.h>
 	<stdio.h>
 	<allegro5/allegro.h>
@@ -567,6 +567,7 @@
 	"../config.h"
 	"../states/states.h"
 	"../game/game.h"
+	"../save/save.h"
 
 1752029712 source:c:\users\dell\documents\codeblocksproject\scdoku\src\game\game.c
 	"sudoku.h"
@@ -583,13 +584,13 @@
 
 1750380023 c:\users\dell\documents\codeblocksproject\scdoku\src\control\vars.h
 
-1752035890 c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.h
+1752119592 c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.h
 	"../states/states.h"
 	"../game/game.h"
 	"../online/online_win.h"
 	"../online/online_unix.h"
 
-1752090573 source:c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.c
+1752122168 source:c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.c
 	<stdbool.h>
 	<stdio.h>
 	<allegro5/allegro.h>
@@ -608,6 +609,7 @@
 	"../draw/draw_rooms.h"
 	"./validation/ip_validation.h"
 	"../audio/audio.h"
+	"../save/save.h"
 	"../online/online_win.h"
 	"../online/online_unix.h"
 
@@ -906,4 +908,13 @@
 	<stdio.h>
 	<stdlib.h>
 	<stdbool.h>
+
+1752121670 c:\users\dell\documents\codeblocksproject\scdoku\src\save\save.h
+	<stdbool.h>
+
+1752122257 source:c:\users\dell\documents\codeblocksproject\scdoku\src\save\save.c
+	<stdio.h>
+	<stdbool.h>
+	<time.h>
+	"../save/save.h"
 

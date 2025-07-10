@@ -10,6 +10,7 @@
 #include "../config.h"
 #include "../states/states.h"
 #include "../game/game.h"
+#include "../save/save.h"
 
 // Constants for UI elements
 const int LEFT_MARGIN = 30;        // Button margin for UI elements
@@ -77,10 +78,10 @@ void draw_menu_room(int mouseX, int mouseY) {
     al_clear_to_color(backgroundColor);
 
     // Calculate button layout
-    const int NUM_BUTTONS = 4;
+    const int NUM_BUTTONS = 5;
     int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
     int boxWidth = BUTTON_WIDTH + 2 * LEFT_MARGIN;
-    int boxHeight = 450;
+    int boxHeight = 500;
     int boxX = (VIRTUAL_W - boxWidth) / 2;
     int boxY = (VIRTUAL_H - boxHeight) / 2;
     int buttonX = boxX + LEFT_MARGIN;
@@ -100,7 +101,7 @@ void draw_menu_room(int mouseX, int mouseY) {
              "sCdoku");
 
     // Menu options
-    const char* menuOptions[] = { "SOLO", "MULTIPLAYER", "CONFIGURACOES", "SAIR" };
+    const char* menuOptions[] = { "SOLO", "MULTIPLAYER", "HISTORICO", "CONFIGURACOES", "SAIR" };
 
     int i;
     // Draw buttons
@@ -516,15 +517,10 @@ void draw_waiting_room(int mouseX, int mouseY, OnlineState*online_state) {
     al_clear_to_color(backgroundColor);
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
-    al_draw_filled_rectangle(0, 0,
-        (VIRTUAL_W/3), VIRTUAL_H,
-        grayColor);
-
-    al_draw_text(fontTitle, titleColor, 30, 100, ALLEGRO_ALIGN_LEFT, "scdoku");
     if (online_state->is_admin) {
-        al_draw_text(fontSmall, titleColor, 600, 150, ALLEGRO_ALIGN_CENTER, "Aguardando conecao de outor jogador");
+        al_draw_text(fontSmall, titleColor, VIRTUAL_W / 2, 150, ALLEGRO_ALIGN_CENTER, "Aguardando conexao de outro jogador");
     } else {
-        al_draw_text(fontSmall, titleColor, 600, 150, ALLEGRO_ALIGN_CENTER, "Voce está conectado, aguarde o começo do jogo");
+        al_draw_text(fontSmall, titleColor, VIRTUAL_W / 2, 150, ALLEGRO_ALIGN_CENTER, "Voce esta conectado, aguarde o comeco do jogo");
     }
 }
 
@@ -589,7 +585,38 @@ void draw_victory_room(int mouseX, int mouseY, OnlineState *online_state) {
     al_clear_to_color(backgroundColor);
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
-    al_draw_text(fontTitle, titleColor, VIRTUAL_W / 2, 100, ALLEGRO_ALIGN_CENTER, "VITORIA");
+    const int buttonWidth = 300;
+    const int buttonHeight = 60;
+    const int padding = 40;
+
+    const int boxWidth = buttonWidth + 2 * padding;
+    const int boxHeight = buttonHeight + 2 * padding + 80;
+
+    int boxX = (VIRTUAL_W - boxWidth) / 2;
+    int boxY = (VIRTUAL_H - boxHeight) / 2;
+    al_draw_filled_rounded_rectangle(boxX, boxY,
+                                     boxX + boxWidth, boxY + boxHeight,
+                                     20, 20, boxColor);
+
+    al_draw_text(fontTitle, titleColor,
+                 VIRTUAL_W / 2, boxY + 30,
+                 ALLEGRO_ALIGN_CENTER, "VITORIA!");
+
+    int buttonX = (VIRTUAL_W - buttonWidth) / 2;
+    int buttonY = boxY + boxHeight - padding - buttonHeight;
+
+    bool isHovered = mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+                     mouseY >= buttonY && mouseY <= buttonY + buttonHeight;
+
+    ALLEGRO_COLOR buttonFill = isHovered ? buttonHoverColor : buttonColor;
+
+    al_draw_filled_rounded_rectangle(buttonX, buttonY,
+                                     buttonX + buttonWidth, buttonY + buttonHeight,
+                                     12, 12, buttonFill);
+
+    int textY = buttonY + (buttonHeight - al_get_font_line_height(font)) / 2;
+    al_draw_text(font, textButtonColor, buttonX + buttonWidth / 2,
+                 textY, ALLEGRO_ALIGN_CENTER, "VOLTAR AO MENU");
 }
 
 void draw_lose_room(int mouseX, int mouseY, OnlineState *online_state) {
@@ -597,5 +624,96 @@ void draw_lose_room(int mouseX, int mouseY, OnlineState *online_state) {
     al_clear_to_color(backgroundColor);
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
-    al_draw_text(fontTitle, titleColor, VIRTUAL_W / 2, 100, ALLEGRO_ALIGN_CENTER, "DERROTA");
+    const int buttonWidth = 300;
+    const int buttonHeight = 60;
+    const int padding = 40;
+
+    const int boxWidth = buttonWidth + 2 * padding;
+    const int boxHeight = buttonHeight + 2 * padding + 80;
+
+    int boxX = (VIRTUAL_W - boxWidth) / 2;
+    int boxY = (VIRTUAL_H - boxHeight) / 2;
+
+    al_draw_filled_rounded_rectangle(boxX, boxY,
+                                     boxX + boxWidth, boxY + boxHeight,
+                                     20, 20, boxColor);
+
+    al_draw_text(fontTitle, errorTextColor,
+                 VIRTUAL_W / 2, boxY + 30,
+                 ALLEGRO_ALIGN_CENTER, "DERROTA");
+
+    int buttonX = (VIRTUAL_W - buttonWidth) / 2;
+    int buttonY = boxY + boxHeight - padding - buttonHeight;
+
+    bool isHovered = mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+                     mouseY >= buttonY && mouseY <= buttonY + buttonHeight;
+
+    ALLEGRO_COLOR buttonFill = isHovered ? buttonHoverColor : buttonColor;
+
+    al_draw_filled_rounded_rectangle(buttonX, buttonY,
+                                     buttonX + buttonWidth, buttonY + buttonHeight,
+                                     12, 12, buttonFill);
+
+    int textY = buttonY + (buttonHeight - al_get_font_line_height(font)) / 2;
+    al_draw_text(font, textButtonColor, buttonX + buttonWidth / 2,
+                 textY, ALLEGRO_ALIGN_CENTER, "VOLTAR AO MENU");
+}
+
+void draw_history_room(int mouseX, int mouseY) {
+    init_color();
+    al_clear_to_color(backgroundColor);
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+
+    Partida partidas[MAX_PARTIDAS];
+    int total = ler_historico(partidas, MAX_PARTIDAS);
+
+    const int boxWidth = 600;
+    const int boxHeight = 500;
+    const int boxX = (VIRTUAL_W - boxWidth) / 2;
+    const int boxY = (VIRTUAL_H - boxHeight) / 2;
+
+    al_draw_filled_rounded_rectangle(
+        boxX, boxY,
+        boxX + boxWidth, boxY + boxHeight,
+        20, 20,
+        boxColor);
+
+    al_draw_text(fontTitle, titleColor, VIRTUAL_W / 2, boxY + 20, ALLEGRO_ALIGN_CENTER, "Histórico de Partidas");
+
+    int textStartY = boxY + 80;
+    al_draw_text(fontSmall, titleColor, boxX + 20, textStartY, 0, "Data e Hora");
+    al_draw_text(fontSmall, titleColor, boxX + 180, textStartY, 0, "Tempo");
+    al_draw_text(fontSmall, titleColor, boxX + 270, textStartY, 0, "Dificuldade");
+    al_draw_text(fontSmall, titleColor, boxX + 400, textStartY, 0, "Erros");
+    al_draw_text(fontSmall, titleColor, boxX + 470, textStartY, 0, "Resultado");
+
+    int y = textStartY + 30;
+    int inicio = total > 10 ? total - 10 : 0;
+    int i;
+    for (i = inicio; i < total; i++) {
+        al_draw_textf(fontSmall, textButtonColor, boxX + 20, y, 0, "%s", partidas[i].data_hora);
+        al_draw_textf(fontSmall, textButtonColor, boxX + 180, y, 0, "%d s", partidas[i].tempo);
+        al_draw_textf(fontSmall, textButtonColor, boxX + 270, y, 0, "%s", partidas[i].dificuldade);
+        al_draw_textf(fontSmall, textButtonColor, boxX + 400, y, 0, "%d", partidas[i].erros);
+        al_draw_textf(fontSmall, textButtonColor, boxX + 470, y, 0, "%s", partidas[i].venceu ? "Vitória" : "Derrota");
+        y += 30;
+    }
+
+    const int btn_w = 180;
+    const int btn_h = 50;
+    const int btn_x = VIRTUAL_W / 2 - btn_w / 2;
+    const int btn_y = boxY + boxHeight - 70;
+
+    bool isHovered = mouseX >= btn_x && mouseX <= btn_x + btn_w &&
+                     mouseY >= btn_y && mouseY <= btn_y + btn_h;
+    ALLEGRO_COLOR color = isHovered ? buttonHoverColor : buttonColor;
+
+    al_draw_filled_rounded_rectangle(
+        btn_x, btn_y,
+        btn_x + btn_w, btn_y + btn_h,
+        15, 15, color);
+
+    al_draw_text(font, textButtonColor, btn_x + btn_w / 2,
+                 btn_y + (btn_h - al_get_font_line_height(font)) / 2,
+                 ALLEGRO_ALIGN_CENTER, "VOLTAR AO MENU");
 }

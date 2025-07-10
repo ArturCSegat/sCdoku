@@ -17,6 +17,7 @@
 #include "../draw/draw_rooms.h"
 #include "./validation/ip_validation.h"
 #include "../audio/audio.h"
+#include "../save/save.h"
 
 #ifdef _WIN32
 #include "../online/online_win.h"
@@ -30,11 +31,11 @@ int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, G
         const int BUTTON_HEIGHT = 50;
         const int BUTTON_PADDING = 20;
         const int LEFT_MARGIN = 30;
-        const int NUM_BUTTONS = 4;
+        const int NUM_BUTTONS = 5;
 
         int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
         int boxWidth = BUTTON_WIDTH + 2 * LEFT_MARGIN;
-        int boxHeight = 450;
+        int boxHeight = 550;
         int boxX = (VIRTUAL_W - boxWidth) / 2;
         int boxY = (VIRTUAL_H - boxHeight) / 2;
         int buttonX = boxX + LEFT_MARGIN;
@@ -56,15 +57,22 @@ int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, G
             *current_room = ROOM_IP;
         }
 
+        // HISTORICO
+        int historyButtonY = firstButtonY + 2 * (BUTTON_HEIGHT + BUTTON_PADDING);
+        if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
+            logicalMouseY >= historyButtonY && logicalMouseY <= historyButtonY + BUTTON_HEIGHT) {
+            *current_room = ROOM_HISTORY;
+        }
+
         // CONFIG
-        int configButtonY = firstButtonY + 2 * (BUTTON_HEIGHT + BUTTON_PADDING);
+        int configButtonY = firstButtonY + 3 * (BUTTON_HEIGHT + BUTTON_PADDING);
         if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
             logicalMouseY >= configButtonY && logicalMouseY <= configButtonY + BUTTON_HEIGHT) {
             *current_room = ROOM_CONFIG;
         }
 
         // EXIT
-        int exitButtonY = firstButtonY + 3 * (BUTTON_HEIGHT + BUTTON_PADDING);
+        int exitButtonY = firstButtonY + 4 * (BUTTON_HEIGHT + BUTTON_PADDING);
         if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
             logicalMouseY >= exitButtonY && logicalMouseY <= exitButtonY + BUTTON_HEIGHT) {
             return 0; // Sair do jogo
@@ -395,15 +403,13 @@ void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouse
 
     if (online_state->opponent != -1) {
         if (!online_state->is_admin) {
-            char b[_max_game_str_len]; 
+            char b[_max_game_str_len];
             online_recv(online_state->opponent, b, _max_game_str_len); 
             online_state->done = true;
             *game = new_game(SIZE, 81, 3);
             from_char(b, _max_game_str_len, game, gameState);
             from_char(b, _max_game_str_len, op_game, op_game_state);
             gameState->startTime = al_get_time();
-
-
 
             *current_room = ROOM_GAME;
             return;
@@ -423,6 +429,93 @@ void handle_waiting_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouse
     *current_room = ROOM_DIFFICULTY;
 }
 
+void handle_victory_room_events(ALLEGRO_EVENT ev, int mouseX, int mouseY,Game * game, GameState *gameState, GameRoom *current_room) {
+    const int buttonWidth = 300;
+    const int buttonHeight = 60;
+    const int padding = 40;
+
+    int buttonX = (VIRTUAL_W - buttonWidth) / 2;
+    int boxHeight = buttonHeight + 2 * padding + 80;
+    int boxY = (VIRTUAL_H - boxHeight) / 2;
+    int buttonY = boxY + boxHeight - padding - buttonHeight;
+
+    if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
+        bool clicked = mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+                       mouseY >= buttonY && mouseY <= buttonY + buttonHeight;
+
+        if (clicked) {
+            char dificuldade[20];
+            if (game->difficulty == 1) {
+                strcpy(dificuldade, "Facil");
+            } else if (game->difficulty == 2) {
+                strcpy(dificuldade, "Medio");
+            } else {
+                strcpy(dificuldade, "Dificil");
+            }
+            salvar_historico(gameState->startTime, dificuldade, (3-game->lifes), true);
+            clean_game(game, gameState);
+            *current_room = ROOM_MENU;
+        }
+    }
+}
+
+void handle_lose_room_events(ALLEGRO_EVENT ev, int mouseX, int mouseY,Game * game, GameState *gameState, GameRoom *current_room) {
+    const int buttonWidth = 300;
+    const int buttonHeight = 60;
+    const int padding = 40;
+
+    int buttonX = (VIRTUAL_W - buttonWidth) / 2;
+    int boxHeight = buttonHeight + 2 * padding + 80;
+    int boxY = (VIRTUAL_H - boxHeight) / 2;
+    int buttonY = boxY + boxHeight - padding - buttonHeight;
+
+    if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
+        bool clicked = mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+                       mouseY >= buttonY && mouseY <= buttonY + buttonHeight;
+
+        if (clicked) {
+            char dificuldade[20];
+            if (game->difficulty == 1) {
+                strcpy(dificuldade, "Facil");
+            } else if (game->difficulty == 2) {
+                strcpy(dificuldade, "Medio");
+            } else {
+                strcpy(dificuldade, "Dificil");
+            }
+            salvar_historico(gameState->startTime, dificuldade, (3-game->lifes), false);
+            clean_game(game, gameState);
+            *current_room = ROOM_MENU;
+        }
+    }
+}
+
+void clean_game(Game * game, GameState *gameState) {
+    *game = new_game(SIZE, 81, 3);
+    memset(gameState->attempts, EMPTY, 81);
+    memset(gameState->errors, false, 81);
+    gameState->isOnline = false;
+    gameState->selectedRow = -1;
+    gameState->selectedCol = -1;
+    gameState->startTime = 0;
+}
+
+void handle_history_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameRoom *current_room) {
+    const int btn_w = 180;
+    const int btn_h = 50;
+    const int btn_x = VIRTUAL_W / 2 - btn_w / 2;
+    const int boxHeight = 500;
+    const int boxY = (VIRTUAL_H - boxHeight) / 2;
+    const int btn_y = boxY + boxHeight - 70;
+
+    if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
+        bool isHovered = mouseX >= btn_x && mouseX <= btn_x + btn_w &&
+                         mouseY >= btn_y && mouseY <= btn_y + btn_h;
+
+        if (isHovered) {
+            *current_room = ROOM_MENU;
+        }
+    }
+}
 
 void handle_msg(char*msg, int msg_len, GameState * op_game_state, Game * op_game) {
     from_char(msg, msg_len, op_game, op_game_state);

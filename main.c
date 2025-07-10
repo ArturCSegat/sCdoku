@@ -135,6 +135,12 @@ int main(int argc, char **argv)
                 break;
             }
 
+            case ROOM_HISTORY:
+            {                       // History room
+                handle_history_events(ev, logicalMouseX, logicalMouseY, &current_room);
+                break;
+            }
+
             case ROOM_GAME:
             {                       // Game room
                 handle_game_events(ev, logicalMouseX, logicalMouseY, &gameState, &game, &online_state, &current_room);
@@ -144,6 +150,18 @@ int main(int argc, char **argv)
                 if(game.lifes == 0 || op_game.left == 0){
                     current_room = ROOM_LOSE;
                 }
+                break;
+            }
+
+            case ROOM_VICTORY:
+            {                       // Victory room
+                handle_victory_room_events(ev, logicalMouseX, logicalMouseY, &game, &gameState, &current_room);
+                break;
+            }
+
+            case ROOM_LOSE:
+            {                       // Lose room
+                handle_lose_room_events(ev, logicalMouseX, logicalMouseY, &game, &gameState, &current_room);
                 break;
             }
         }
@@ -213,6 +231,10 @@ int main(int argc, char **argv)
 
                 case ROOM_LOSE:         // Lose room
                     draw_lose_room(logicalMouseX, logicalMouseY, &online_state);
+                    break;
+
+                case ROOM_HISTORY:      // History room
+                    draw_history_room(logicalMouseX, logicalMouseY);
                     break;
             }
 

@@ -11,6 +11,7 @@
 typedef enum {
     ROOM_MENU,
     ROOM_CONFIG,
+    ROOM_HISTORY,
     ROOM_IP,
     ROOM_WAITING,
     ROOM_GAME,
