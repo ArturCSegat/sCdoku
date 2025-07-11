@@ -488,7 +488,7 @@
 	<allegro5/allegro.h>
 	<allegro5/allegro_image.h>
 
-1752121218 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
+1752124451 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
 	<stdio.h>
 	<stdbool.h>
 	<allegro5/allegro.h>
@@ -555,7 +555,7 @@
 	"../states/states.h"
 	"../game/game.h"
 
-1752121876 source:c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.c
+1752190646 source:c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.c
 	<stdbool.h>
 	<stdio.h>
 	<allegro5/allegro.h>
@@ -577,7 +577,7 @@
 	<stdbool.h>
 	"../states/states.h"
 
-1752035899 c:\users\dell\documents\codeblocksproject\scdoku\src\config.h
+1752124992 c:\users\dell\documents\codeblocksproject\scdoku\src\config.h
 
 1372639132 c:\allegro\allegromingw\include\allegro5\allegro_color.h
 	"allegro5/allegro.h"
@@ -590,7 +590,7 @@
 	"../online/online_win.h"
 	"../online/online_unix.h"
 
-1752122168 source:c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.c
+1752191572 source:c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.c
 	<stdbool.h>
 	<stdio.h>
 	<allegro5/allegro.h>
@@ -912,9 +912,10 @@
 1752121670 c:\users\dell\documents\codeblocksproject\scdoku\src\save\save.h
 	<stdbool.h>
 
-1752122257 source:c:\users\dell\documents\codeblocksproject\scdoku\src\save\save.c
+1752189929 source:c:\users\dell\documents\codeblocksproject\scdoku\src\save\save.c
 	<stdio.h>
 	<stdbool.h>
+	<string.h>
 	<time.h>
 	"../save/save.h"
 

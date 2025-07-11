@@ -113,16 +113,24 @@ void handle_config_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameRoom *cu
         return;
     }
 
+    int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
+    int firstButtonY = (VIRTUAL_H - totalMenuHeight) / 2 - 80;
     int controlCenterX = buttonX + SAFE_BUTTON_WIDTH / 2;
+    int circleRadius = 16;
     int spacingX = 45;
     int spacingY = 100;
-    int circleRadius = 16;
 
-    int soundControlY = BUTTON_Y_START + NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) + 60 + 30;
-    int musicControlY = soundControlY + spacingY;
+    // Posicionamento Y para blocos de volume
+    int soundLabelY = firstButtonY + NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) + 60;
+    int soundControlY = soundLabelY + 30;
+
+    int musicLabelY = soundControlY + spacingY;
+    int musicControlY = musicLabelY + 30;
 
     int soundMinusX = controlCenterX - spacingX;
-    int soundPlusX = controlCenterX + spacingX;
+    int soundPlusX  = controlCenterX + spacingX;
+    int musicMinusX = controlCenterX - spacingX;
+    int musicPlusX  = controlCenterX + spacingX;
 
     if (mouseX >= soundMinusX - circleRadius && mouseX <= soundMinusX + circleRadius &&
         mouseY >= soundControlY - circleRadius && mouseY <= soundControlY + circleRadius) {
@@ -137,9 +145,6 @@ void handle_config_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameRoom *cu
         al_play_sample(som_scc, SOUND_VOLUME, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
         return;
     }
-
-    int musicMinusX = controlCenterX - spacingX;
-    int musicPlusX = controlCenterX + spacingX;
 
     if (mouseX >= musicMinusX - circleRadius && mouseX <= musicMinusX + circleRadius &&
         mouseY >= musicControlY - circleRadius && mouseY <= musicControlY + circleRadius) {
@@ -501,16 +506,18 @@ void clean_game(Game * game, GameState *gameState) {
 }
 
 void handle_history_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameRoom *current_room) {
-    const int btn_w = 180;
+    const int boxWidth = 700;
+    const int boxHeight = 520;
+    const int boxX = (VIRTUAL_W - boxWidth) / 2;
+    const int boxY = (VIRTUAL_H - boxHeight) / 2;
+    const int btn_w = 300;
     const int btn_h = 50;
     const int btn_x = VIRTUAL_W / 2 - btn_w / 2;
-    const int boxHeight = 500;
-    const int boxY = (VIRTUAL_H - boxHeight) / 2;
-    const int btn_y = boxY + boxHeight - 70;
+    const int btn_y = boxY + boxHeight - 60;
 
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
-        bool isHovered = mouseX >= btn_x && mouseX <= btn_x + btn_w &&
-                         mouseY >= btn_y && mouseY <= btn_y + btn_h;
+    bool isHovered = mouseX >= btn_x && mouseX <= btn_x + btn_w &&
+                     mouseY >= btn_y && mouseY <= btn_y + btn_h;
 
         if (isHovered) {
             *current_room = ROOM_MENU;

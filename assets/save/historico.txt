@@ -1,0 +1,5 @@
+2025-07-10 20:34:18;7;Medio;3;Derrota
+2025-07-10 20:36:23;10;Medio;3;Derrota
+2025-07-10 20:40:33;18;Medio;3;Derrota
+2025-07-10 20:41:22;49;Medio;3;Derrota
+2025-07-10 20:41:27;71;Dificil;3;Derrota

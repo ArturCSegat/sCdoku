@@ -667,52 +667,59 @@ void draw_history_room(int mouseX, int mouseY) {
     Partida partidas[MAX_PARTIDAS];
     int total = ler_historico(partidas, MAX_PARTIDAS);
 
-    const int boxWidth = 600;
-    const int boxHeight = 500;
+    const int boxWidth = 700;
+    const int boxHeight = 520;
     const int boxX = (VIRTUAL_W - boxWidth) / 2;
     const int boxY = (VIRTUAL_H - boxHeight) / 2;
 
-    al_draw_filled_rounded_rectangle(
-        boxX, boxY,
-        boxX + boxWidth, boxY + boxHeight,
-        20, 20,
-        boxColor);
+    al_draw_filled_rounded_rectangle(boxX, boxY, boxX + boxWidth, boxY + boxHeight, 20, 20, boxColor);
 
-    al_draw_text(fontTitle, titleColor, VIRTUAL_W / 2, boxY + 20, ALLEGRO_ALIGN_CENTER, "Histórico de Partidas");
+    al_draw_text(font, titleColor, VIRTUAL_W / 2, boxY + 20, ALLEGRO_ALIGN_CENTER, "Historico de Partidas");
 
-    int textStartY = boxY + 80;
-    al_draw_text(fontSmall, titleColor, boxX + 20, textStartY, 0, "Data e Hora");
-    al_draw_text(fontSmall, titleColor, boxX + 180, textStartY, 0, "Tempo");
-    al_draw_text(fontSmall, titleColor, boxX + 270, textStartY, 0, "Dificuldade");
-    al_draw_text(fontSmall, titleColor, boxX + 400, textStartY, 0, "Erros");
-    al_draw_text(fontSmall, titleColor, boxX + 470, textStartY, 0, "Resultado");
+    int textStartY = boxY + 70;
+    int rowHeight = 30;
+    int colX[] = {
+        boxX + 30,         
+        boxX + 170,        
+        boxX + 270,        
+        boxX + 400,        
+        boxX + 500         
+    };
 
-    int y = textStartY + 30;
-    int inicio = total > 10 ? total - 10 : 0;
+    const char* headers[] = { "Data e Hora", "Tempo", "Dificuldade", "Erros", "Resultado" };
+
     int i;
-    for (i = inicio; i < total; i++) {
-        al_draw_textf(fontSmall, textButtonColor, boxX + 20, y, 0, "%s", partidas[i].data_hora);
-        al_draw_textf(fontSmall, textButtonColor, boxX + 180, y, 0, "%d s", partidas[i].tempo);
-        al_draw_textf(fontSmall, textButtonColor, boxX + 270, y, 0, "%s", partidas[i].dificuldade);
-        al_draw_textf(fontSmall, textButtonColor, boxX + 400, y, 0, "%d", partidas[i].erros);
-        al_draw_textf(fontSmall, textButtonColor, boxX + 470, y, 0, "%s", partidas[i].venceu ? "Vitoria" : "Derrota");
-        y += 30;
+    for (i = 0; i < 5; i++) {
+        al_draw_text(fontSmall, titleColor, colX[i], textStartY, 0, headers[i]);
     }
 
-    const int btn_w = 180;
+    int y = textStartY + rowHeight;
+    int inicio = total > 10 ? total - 10 : 0;
+    for (i = inicio; i < total; i++) {
+        if ((i - inicio) % 2 == 0) {
+            al_draw_filled_rectangle(boxX + 10, y - 5, boxX + boxWidth - 10, y + rowHeight - 5, al_map_rgba(255,255,255,10));
+        }
+        char data_formatada[11];
+        strncpy(data_formatada, partidas[i].data_hora, 10);
+        data_formatada[10] = '\0';
+        al_draw_textf(fontSmall, textButtonColor, colX[0], y, 0, "%s", data_formatada);
+        al_draw_textf(fontSmall, textButtonColor, colX[1], y, 0, "%d s", partidas[i].tempo);
+        al_draw_textf(fontSmall, textButtonColor, colX[2], y, 0, "%s", partidas[i].dificuldade);
+        al_draw_textf(fontSmall, textButtonColor, colX[3], y, 0, "%d", partidas[i].erros);
+        al_draw_textf(fontSmall, textButtonColor, colX[4], y, 0, "%s", partidas[i].venceu ? "Vitoria" : "Derrota");
+        y += rowHeight;
+    }
+
+    const int btn_w = 300;
     const int btn_h = 50;
     const int btn_x = VIRTUAL_W / 2 - btn_w / 2;
-    const int btn_y = boxY + boxHeight - 70;
+    const int btn_y = boxY + boxHeight - 60;
 
     bool isHovered = mouseX >= btn_x && mouseX <= btn_x + btn_w &&
                      mouseY >= btn_y && mouseY <= btn_y + btn_h;
-    ALLEGRO_COLOR color = isHovered ? buttonHoverColor : buttonColor;
+    ALLEGRO_COLOR btnColor = isHovered ? buttonHoverColor : buttonColor;
 
-    al_draw_filled_rounded_rectangle(
-        btn_x, btn_y,
-        btn_x + btn_w, btn_y + btn_h,
-        15, 15, color);
-
+    al_draw_filled_rounded_rectangle(btn_x, btn_y, btn_x + btn_w, btn_y + btn_h, 12, 12, btnColor);
     al_draw_text(font, textButtonColor, btn_x + btn_w / 2,
                  btn_y + (btn_h - al_get_font_line_height(font)) / 2,
                  ALLEGRO_ALIGN_CENTER, "VOLTAR AO MENU");
