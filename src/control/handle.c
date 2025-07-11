@@ -26,61 +26,47 @@
 #endif
 
 void clean_game(Game * game, GameState *gameState);
-int handle_menu_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameState *gameState, GameRoom *current_room) {
+int handle_menu_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameState *gameState, GameRoom *current_room) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
+        const int LEFT_MARGIN = 30;
         const int BUTTON_WIDTH = VIRTUAL_W/3;
         const int BUTTON_HEIGHT = 50;
         const int BUTTON_PADDING = 20;
-        const int LEFT_MARGIN = 30;
+        const int TEXT_PADDING_X = 10;
         const int NUM_BUTTONS = 5;
 
         int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
         int boxWidth = BUTTON_WIDTH + 2 * LEFT_MARGIN;
-        int boxHeight = 550;
+        int boxHeight = 500;
         int boxX = (VIRTUAL_W - boxWidth) / 2;
         int boxY = (VIRTUAL_H - boxHeight) / 2;
         int buttonX = boxX + LEFT_MARGIN;
-        int firstButtonY = boxY + (boxHeight - totalMenuHeight) / 2 + 20;
+        int firstButtonY = boxY + (boxHeight - totalMenuHeight) / 2 + 40;
 
-        // START
-        int startButtonY = firstButtonY;
-        if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
-            logicalMouseY >= startButtonY && logicalMouseY <= startButtonY + BUTTON_HEIGHT) {
-            gameState->isOnline = false;
-            *current_room = ROOM_DIFFICULTY;
-        }
+        GameRoom rooms[] = {ROOM_DIFFICULTY, ROOM_IP, ROOM_HISTORY, ROOM_CONFIG, -1};
 
-        // MULTIPLAYER
-        int multiplayerButtonY = firstButtonY + 1 * (BUTTON_HEIGHT + BUTTON_PADDING);
-        if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
-            logicalMouseY >= multiplayerButtonY && logicalMouseY <= multiplayerButtonY + BUTTON_HEIGHT) {
-            gameState->isOnline = true;
-            *current_room = ROOM_IP;
-        }
+        int i;
+        for (i = 0; i < NUM_BUTTONS; i++) {
+            int buttonY = firstButtonY + i * (BUTTON_HEIGHT + BUTTON_PADDING);
+            if (mouseX >= buttonX && mouseX <= buttonX + BUTTON_WIDTH &&
+                mouseY >= buttonY && mouseY <= buttonY + BUTTON_HEIGHT) {
+                
+                if (i == 0) {
+                    gameState->isOnline = false;
+                }
+                else if (i == 1) {
+                    gameState->isOnline = true;
+                }
 
-        // HISTORICO
-        int historyButtonY = firstButtonY + 2 * (BUTTON_HEIGHT + BUTTON_PADDING);
-        if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
-            logicalMouseY >= historyButtonY && logicalMouseY <= historyButtonY + BUTTON_HEIGHT) {
-            *current_room = ROOM_HISTORY;
-        }
-
-        // CONFIG
-        int configButtonY = firstButtonY + 3 * (BUTTON_HEIGHT + BUTTON_PADDING);
-        if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
-            logicalMouseY >= configButtonY && logicalMouseY <= configButtonY + BUTTON_HEIGHT) {
-            *current_room = ROOM_CONFIG;
-        }
-
-        // EXIT
-        int exitButtonY = firstButtonY + 4 * (BUTTON_HEIGHT + BUTTON_PADDING);
-        if (logicalMouseX >= buttonX && logicalMouseX <= buttonX + BUTTON_WIDTH &&
-            logicalMouseY >= exitButtonY && logicalMouseY <= exitButtonY + BUTTON_HEIGHT) {
-            return 0; // Sair do jogo
+                if (rooms[i] != -1) {
+                    *current_room = rooms[i];
+                } else {
+                    return 0;
+                }
+            }
         }
     }
-
-    return 1; // Continua no menu
+    return 1;
 }
 
 void handle_config_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameRoom *current_room) {
@@ -199,17 +185,18 @@ void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMo
                 from_char(msg, _max_game_str_len, op_game, op_game_state);
             }
         }
+        if(!gameState->isOnline){
+            const int BACK_BUTTON_WIDTH = 150;
+            const int BACK_BUTTON_HEIGHT = 40;
+            const int BACK_BUTTON_SPACING_Y = 40;
 
-        const int BACK_BUTTON_WIDTH = 150;
-        const int BACK_BUTTON_HEIGHT = 40;
-        const int BACK_BUTTON_SPACING_Y = 40;
+            int backButtonX = (VIRTUAL_W - BACK_BUTTON_WIDTH) / 2;
+            int backButtonY = buttonY + BUTTON_SIZE + BACK_BUTTON_SPACING_Y;
 
-        int backButtonX = (VIRTUAL_W - BACK_BUTTON_WIDTH) / 2;
-        int backButtonY = buttonY + BUTTON_SIZE + BACK_BUTTON_SPACING_Y;
-
-        if (logicalMouseX >= backButtonX && logicalMouseX <= backButtonX + BACK_BUTTON_WIDTH &&
-            logicalMouseY >= backButtonY && logicalMouseY <= backButtonY + BACK_BUTTON_HEIGHT) {
-            *current_room = ROOM_MENU;
+            if (logicalMouseX >= backButtonX && logicalMouseX <= backButtonX + BACK_BUTTON_WIDTH &&
+                logicalMouseY >= backButtonY && logicalMouseY <= backButtonY + BACK_BUTTON_HEIGHT) {
+                *current_room = ROOM_MENU;
+            }
         }
     }
 }
@@ -235,7 +222,7 @@ void handle_game_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, 
     }
 
     startX = panelX + PANEL_PADDING;
-    startY = (VIRTUAL_H - PANEL_HEIGHT) / 2 + PANEL_PADDING + HEADER_HEIGHT;
+    startY = (VIRTUAL_H - PANEL_HEIGHT) / 2 + PANEL_PADDING + HEADER_HEIGHT - 20;
 
     // Clique do mouse
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {

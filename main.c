@@ -197,7 +197,7 @@ int main(int argc, char **argv)
                     break;
 
                 case ROOM_DIFFICULTY:   // Difficulty selection room
-                    draw_difficulty_room(logicalMouseX, logicalMouseY);
+                    draw_difficulty_room(logicalMouseX, logicalMouseY, &gameState);
                     break;
 
                 case ROOM_IP:           // IP input room

@@ -488,7 +488,7 @@
 	<allegro5/allegro.h>
 	<allegro5/allegro_image.h>
 
-1752124451 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
+1752222972 source:c:\users\dell\documents\codeblocksproject\scdoku\main.c
 	<stdio.h>
 	<stdbool.h>
 	<allegro5/allegro.h>
@@ -547,7 +547,7 @@
 	"allegro5/allegro.h"
 	"allegro5/allegro_font.h"
 
-1752121234 c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.h
+1752222958 c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.h
 	<allegro5/allegro.h>
 	<allegro5/allegro_image.h>
 	<allegro5/allegro_ttf.h>
@@ -555,7 +555,7 @@
 	"../states/states.h"
 	"../game/game.h"
 
-1752190646 source:c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.c
+1752227994 source:c:\users\dell\documents\codeblocksproject\scdoku\src\draw\draw_rooms.c
 	<stdbool.h>
 	<stdio.h>
 	<allegro5/allegro.h>
@@ -590,7 +590,7 @@
 	"../online/online_win.h"
 	"../online/online_unix.h"
 
-1752191572 source:c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.c
+1752226811 source:c:\users\dell\documents\codeblocksproject\scdoku\src\control\handle.c
 	<stdbool.h>
 	<stdio.h>
 	<allegro5/allegro.h>

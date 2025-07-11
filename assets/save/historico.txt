@@ -3,3 +3,7 @@
 2025-07-10 20:40:33;18;Medio;3;Derrota
 2025-07-10 20:41:22;49;Medio;3;Derrota
 2025-07-10 20:41:27;71;Dificil;3;Derrota
+2025-07-11 05:39:27;165;Facil;3;Derrota
+2025-07-11 05:39:42;17;Facil;0;Vitoria
+2025-07-11 05:55:38;56;Facil;3;Derrota
+2025-07-11 07:03:36;7;Facil;3;Derrota

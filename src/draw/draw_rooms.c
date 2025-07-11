@@ -247,20 +247,18 @@ void draw_config_room(int mouseX, int mouseY) {
 }
 
 // Draw the difficulty selection room
-void draw_difficulty_room(int mouseX, int mouseY) {
+void draw_difficulty_room(int mouseX, int mouseY, GameState *gameState) {
     init_color();
     al_clear_to_color(backgroundColor);
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
-    // Draw logo and title
-    al_draw_text(fontTitle, titleColor, 30, 100, ALLEGRO_ALIGN_LEFT, "sCdoku");
-    al_draw_text(fontTitle, titleColor, VIRTUAL_W / 2, 200, ALLEGRO_ALIGN_CENTER, "Game Difficulty");
+    al_draw_text(fontTitle, titleColor, VIRTUAL_W / 2, 200, ALLEGRO_ALIGN_CENTER, "Dificuldade do Jogo");
 
     // Define difficulty buttons
     const int BUTTON_SIZE = 150;      // Size of each difficulty button
     const int BUTTON_SPACING = 30;    // Space between buttons
     const int NUM_BUTTONS = 3;        // Number of difficulty levels
-    const char* difficulties[] = { "EASY", "MEDIUM", "HARD" };
+    const char* difficulties[] = { "FACIL", "MEDIO", "DIFICIL" };
 
     // Calculate layout
     int totalWidth = NUM_BUTTONS * BUTTON_SIZE + (NUM_BUTTONS - 1) * BUTTON_SPACING;
@@ -294,39 +292,43 @@ void draw_difficulty_room(int mouseX, int mouseY) {
         int textX = buttonX + (BUTTON_SIZE - textWidth) / 2;
         int textY = buttonY + (BUTTON_SIZE - textHeight) / 2;
 
-        al_draw_text(font, textButtonColor, textX, textY, ALLEGRO_ALIGN_LEFT, difficulties[i]);
+        al_draw_text(font, textButtonColor,
+                     textX, textY,
+                     ALLEGRO_ALIGN_LEFT, difficulties[i]);
     }
 
-    // Draw back button below difficulty buttons
-    const int BACK_BUTTON_WIDTH = 150;
-    const int BACK_BUTTON_HEIGHT = 40;
-    const int BACK_BUTTON_SPACING_Y = 40;
+    if(!gameState->isOnline){
+        // Draw back button below difficulty buttons
+        const int BACK_BUTTON_WIDTH = 150;
+        const int BACK_BUTTON_HEIGHT = 40;
+        const int BACK_BUTTON_SPACING_Y = 40;
 
-    int backButtonX = (VIRTUAL_W - BACK_BUTTON_WIDTH) / 2;
-    int backButtonY = buttonY + BUTTON_SIZE + BACK_BUTTON_SPACING_Y;
+        int backButtonX = (VIRTUAL_W - BACK_BUTTON_WIDTH) / 2;
+        int backButtonY = buttonY + BUTTON_SIZE + BACK_BUTTON_SPACING_Y;
 
-    // Check if mouse is over back button
-    bool isBackHovered =
-        mouseX >= backButtonX &&
-        mouseX <= backButtonX + BACK_BUTTON_WIDTH &&
-        mouseY >= backButtonY &&
-        mouseY <= backButtonY + BACK_BUTTON_HEIGHT;
+        // Check if mouse is over back button
+        bool isBackHovered =
+            mouseX >= backButtonX &&
+            mouseX <= backButtonX + BACK_BUTTON_WIDTH &&
+            mouseY >= backButtonY &&
+            mouseY <= backButtonY + BACK_BUTTON_HEIGHT;
 
-    // Set appropriate button color
-    ALLEGRO_COLOR backColor = isBackHovered ? buttonHoverColor : buttonColor;
+        // Set appropriate button color
+        ALLEGRO_COLOR backColor = isBackHovered ? buttonHoverColor : buttonColor;
 
-    // Draw back button
-    al_draw_filled_rectangle(backButtonX, backButtonY,
-                             backButtonX + BACK_BUTTON_WIDTH,
-                             backButtonY + BACK_BUTTON_HEIGHT,
-                             backColor);
+        // Draw back button
+        al_draw_filled_rectangle(backButtonX, backButtonY,
+                                backButtonX + BACK_BUTTON_WIDTH,
+                                backButtonY + BACK_BUTTON_HEIGHT,
+                                backColor);
 
-    // Draw back button text
-    int backTextHeight = al_get_font_line_height(font);
-    int backTextY = backButtonY + (BACK_BUTTON_HEIGHT - backTextHeight) / 2;
+        // Draw back button text
+        int backTextHeight = al_get_font_line_height(font);
+        int backTextY = backButtonY + (BACK_BUTTON_HEIGHT - backTextHeight) / 2;
 
-    al_draw_text(font, textButtonColor, backButtonX + TEXT_PADDING_X, backTextY,
-                 ALLEGRO_ALIGN_LEFT, "BACK");
+        al_draw_text(font, textButtonColor, backButtonX + TEXT_PADDING_X, backTextY,
+                    ALLEGRO_ALIGN_LEFT, "VOLTAR");
+    }
 }
 
 void draw_single_board(int startX, int startY, GameState *gameState, Game *game, bool hide) {
@@ -430,6 +432,74 @@ void draw_single_board(int startX, int startY, GameState *gameState, Game *game,
     }
 }
 
+void draw_number_selector(int startX, int startY, GameState *gameState, Game *game) {
+    const int CELL_SIZE = 50;
+    const int GRID_SIZE = 9;
+    const int NUMBERS = 9;
+    const int BOX_SIZE = 45;
+    const int SPACING = 5;
+
+    int counts[10] = {0};
+    int row, col;
+    for (row = 0; row < GRID_SIZE; row++) {
+        for (col = 0; col < GRID_SIZE; col++) {
+            char val = game->b[row][col];
+            if (val >= '1' && val <= '9') {
+                counts[val - '0']++;
+            }
+        }
+    }
+
+    char selectedChar = '\0';
+    if (gameState->selectedRow >= 0 && gameState->selectedRow < GRID_SIZE &&
+        gameState->selectedCol >= 0 && gameState->selectedCol < GRID_SIZE) {
+
+        selectedChar = game->b[gameState->selectedRow][gameState->selectedCol];
+        if (selectedChar == EMPTY)
+            selectedChar = gameState->attempts[gameState->selectedRow][gameState->selectedCol];
+    }
+
+    int selectedNumber = (selectedChar >= '1' && selectedChar <= '9') ? (selectedChar - '0') : 0;
+
+    int totalWidth = NUMBERS * (BOX_SIZE + SPACING) - SPACING;
+    int selectorX = startX + (GRID_SIZE * CELL_SIZE - totalWidth) / 2;
+    int selectorY = startY + GRID_SIZE * CELL_SIZE + 20;
+
+    int i;
+    for (i = 1; i <= NUMBERS; i++) {
+        if (counts[i] == 9) {
+            int x = selectorX + (i - 1) * (BOX_SIZE + SPACING);
+            int y = selectorY;
+            al_draw_filled_rounded_rectangle(x, y, x + BOX_SIZE, y + BOX_SIZE,7,7, boxColor);
+            char text[2] = { '0' + i, '\0' };
+            al_draw_text(fontNumber, numberColor, x + BOX_SIZE / 2, y + BOX_SIZE / 6,
+                         ALLEGRO_ALIGN_CENTER, text);
+        }
+    }
+
+    for (i = 1; i <= NUMBERS; i++) {
+        if (i == selectedNumber && counts[i] < 9) {
+            int x = selectorX + (i - 1) * (BOX_SIZE + SPACING);
+            int y = selectorY;
+            al_draw_filled_rounded_rectangle(x, y, x + BOX_SIZE, y + BOX_SIZE,7,7, selectedBoxColor);
+            char text[2] = { '0' + i, '\0' };
+            al_draw_text(fontNumber, numberColor, x + BOX_SIZE / 2, y + BOX_SIZE / 6,
+                         ALLEGRO_ALIGN_CENTER, text);
+        }
+    }
+
+    for (i = 1; i <= NUMBERS; i++) {
+        if (counts[i] < 9 && i != selectedNumber) {
+            int x = selectorX + (i - 1) * (BOX_SIZE + SPACING);
+            int y = selectorY;
+            al_draw_filled_rounded_rectangle(x, y, x + BOX_SIZE, y + BOX_SIZE,7,7, grayColor);
+            char text[2] = { '0' + i, '\0' };
+            al_draw_text(fontNumber, numberColor, x + BOX_SIZE / 2, y + BOX_SIZE / 6,
+                         ALLEGRO_ALIGN_CENTER, text);
+        }
+    }
+}
+
 void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game, GameState *op_gameState, Game *op_game) {
     op_gameState->startTime = gameState->startTime;
     init_color();
@@ -447,7 +517,7 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game, Ga
     const int TEXT_OFFSET_Y = 6;
 
     int panelX1, panelX2;
-    int panelY = (VIRTUAL_H - PANEL_HEIGHT) / 2;
+    int panelY = (VIRTUAL_H - PANEL_HEIGHT) / 2 - 20;
 
     if (gameState->isOnline) {
         panelX1 = (VIRTUAL_W / 4) - (PANEL_WIDTH / 2);
@@ -509,6 +579,7 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game, Ga
         int startY2 = panelY + PANEL_PADDING + HEADER_HEIGHT;
         draw_single_board(startX2, startY2, op_gameState, op_game, true);
     }
+    draw_number_selector(startX1, startY1, gameState, game);
 }
 
 
@@ -686,7 +757,7 @@ void draw_history_room(int mouseX, int mouseY) {
         boxX + 500         
     };
 
-    const char* headers[] = { "Data e Hora", "Tempo", "Dificuldade", "Erros", "Resultado" };
+    const char* headers[] = { "Data", "Tempo", "Dificuldade", "Erros", "Resultado" };
 
     int i;
     for (i = 0; i < 5; i++) {

@@ -139,6 +139,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/online/online_win.h" />
+		<Unit filename="src/save/save.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/save/save.h" />
 		<Unit filename="src/states/states.h" />
 		<Extensions>
 			<code_completion />
