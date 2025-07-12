@@ -7,5 +7,7 @@
 my_program
 bin/
 obj/
+sCdoku.depend
+sCdoku.layout
 
 
