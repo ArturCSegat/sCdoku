@@ -500,7 +500,7 @@ void draw_number_selector(int startX, int startY, GameState *gameState, Game *ga
 
     int i;
     for (i = 1; i <= NUMBERS; i++) {
-        if (counts[i] == 9) {
+        if (counts[i] < 9) {
             int x = selectorX + (i - 1) * (BOX_SIZE + SPACING);
             int y = selectorY;
             al_draw_filled_rounded_rectangle(x, y, x + BOX_SIZE, y + BOX_SIZE,7,7, boxColor);
