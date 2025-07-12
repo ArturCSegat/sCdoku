@@ -1,13 +1,7 @@
-*.exe
 *.o
 *.out
 *.a
 *.so
 *.dll
+/obj
 my_program
-bin/
-obj/
-sCdoku.depend
-sCdoku.layout
-
-
