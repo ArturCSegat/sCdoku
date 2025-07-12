@@ -39,6 +39,7 @@ ALLEGRO_FONT *font;               // Regular font
 ALLEGRO_FONT *fontTitle;         // Title font
 ALLEGRO_FONT *fontNumber;         // Title font
 ALLEGRO_FONT *fontSmall;         // Title font
+ALLEGRO_FONT *fontConfigTitle;
 
 // Initialize font resources
 void init_font(){
@@ -46,6 +47,7 @@ void init_font(){
     fontTitle = al_load_ttf_font("assets/font/font.TTF", 70, 0); // Load title font at 50pt
     fontNumber = al_load_ttf_font("assets/font/bdb.TTF", 30, 0); // Load number font at 30pt
     fontSmall = al_load_ttf_font("assets/font/bdb.TTF", 20, 0); // Load number font at 30pt
+    fontConfigTitle = al_load_ttf_font("assets/font/font.TTF", 60, 0);
 }
 
 void destroy_font(){
@@ -59,10 +61,10 @@ void init_color(){
     backgroundColor = al_map_rgb(10, 10, 15);
     grayColor = al_map_rgb(44, 47, 66);
     boxColor = al_map_rgb(18, 20, 27);
-    buttonColor = al_map_rgb(36, 39, 59);
+    buttonColor = al_map_rgb(5, 49, 84);
     buttonHoverColor = al_map_rgb(46, 49, 79);
-    textButtonColor = al_map_rgb(102, 153, 255);
-    titleColor = al_map_rgb(176, 180, 208);
+    textButtonColor = al_map_rgb(255, 255, 255);
+    titleColor = al_map_rgb(255, 255, 255);
     selectedBoxColor = al_map_rgb(37, 47, 109);
     sameLineColumnColor = al_map_rgb(31, 33, 46);
     lineGradeColor = al_map_rgb(2, 5, 1);
@@ -139,24 +141,38 @@ void draw_menu_room(int mouseX, int mouseY) {
     }
 }
 
+// Draw the config room
 void draw_config_room(int mouseX, int mouseY) {
     init_color();
     al_clear_to_color(backgroundColor);
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
-    const float sidebarWidth = VIRTUAL_W / 3;
-    al_draw_filled_rectangle(0, 0, sidebarWidth, VIRTUAL_H, grayColor);
-    al_draw_text(fontTitle, titleColor, 30, 100, ALLEGRO_ALIGN_LEFT, "sCdoku");
+    // Caixa
+    const int boxWidth = BUTTON_WIDTH + 2 * LEFT_MARGIN;
+    const int boxHeight = 500;
+    const int boxX = (VIRTUAL_W - boxWidth) / 2;
+    const int boxY = (VIRTUAL_H - boxHeight) / 2;
 
-    // Ajuste largura segura para os botões padrão
-    const int SAFE_BUTTON_WIDTH = sidebarWidth - 2 * LEFT_MARGIN;
+    al_draw_filled_rounded_rectangle(
+        boxX, boxY,
+        boxX + boxWidth,
+        boxY + boxHeight,
+        20, 20,
+        boxColor);
 
-    // Botões padrão
+    al_draw_text(fontConfigTitle, titleColor,
+        boxX + boxWidth / 2,
+        boxY + 30,
+        ALLEGRO_ALIGN_CENTER,
+        "CONFIGURACOES");
+
+    const int SAFE_BUTTON_WIDTH = BUTTON_WIDTH;
+
     const int NUM_BUTTONS = 2;
     const char* menuOptions[] = { "FULL SCREEN", "BACK" };
     int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
-    int firstButtonY = (VIRTUAL_H - totalMenuHeight) / 2 - 80;
-    int buttonX = LEFT_MARGIN;
+    int buttonX = boxX + LEFT_MARGIN;
+    int firstButtonY = boxY + 120;
 
     int i;
     for (i = 0; i < NUM_BUTTONS; i++) {
@@ -174,26 +190,28 @@ void draw_config_room(int mouseX, int mouseY) {
             buttonX, buttonY,
             buttonX + SAFE_BUTTON_WIDTH,
             buttonY + BUTTON_HEIGHT,
-            12, 12, color
-        );
+            10, 10, color);
 
         int textHeight = al_get_font_line_height(font);
         int textY = buttonY + (BUTTON_HEIGHT - textHeight) / 2;
 
         al_draw_text(font, textButtonColor,
-                     buttonX + SAFE_BUTTON_WIDTH / 2,
-                     textY,
-                     ALLEGRO_ALIGN_CENTER, menuOptions[i]);
+            buttonX + SAFE_BUTTON_WIDTH / 2,
+            textY,
+            ALLEGRO_ALIGN_CENTER, menuOptions[i]);
     }
 
-    // Controle volume layout
-    int controlCenterX = buttonX + SAFE_BUTTON_WIDTH / 2;
+    // Volume controls
+    int controlCenterX = boxX + boxWidth / 2;
     int circleRadius = 16;
     int spacingX = 45;
-    int spacingY = 100;
+    int spacingY = 80;
 
     // Posicionamento Y para blocos de volume
-    int soundLabelY = firstButtonY + NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) + 60;
+    int lastButtonY = firstButtonY + (NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING)) - BUTTON_PADDING;
+    int volumeStartY = lastButtonY + 60;
+
+    int soundLabelY = volumeStartY;
     int soundControlY = soundLabelY + 30;
 
     int musicLabelY = soundControlY + spacingY;
@@ -217,7 +235,7 @@ void draw_config_room(int mouseX, int mouseY) {
                             mouseY >= musicControlY - circleRadius && mouseY <= musicControlY + circleRadius);
 
     // Ajuste para posicionar labels um pouco acima dos controles com padding maior
-    int labelOffsetY = 35; // Padding maior entre label e controle
+    int labelOffsetY = 35;
 
     // Desenhar labels centralizadas acima dos controles
     al_draw_text(font, al_map_rgb(255, 255, 255), controlCenterX, soundLabelY - labelOffsetY, ALLEGRO_ALIGN_CENTER, "SOUND VOLUME");
@@ -252,41 +270,54 @@ void draw_difficulty_room(int mouseX, int mouseY, GameState *gameState) {
     al_clear_to_color(backgroundColor);
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
-    al_draw_text(fontTitle, titleColor, VIRTUAL_W / 2, 200, ALLEGRO_ALIGN_CENTER, "Dificuldade do Jogo");
+    // Box central
+    const int boxWidth = 600;
+    const int boxHeight = 400;
+    const int boxX = (VIRTUAL_W - boxWidth) / 2;
+    const int boxY = (VIRTUAL_H - boxHeight) / 2;
+
+    al_draw_filled_rounded_rectangle(
+        boxX, boxY,
+        boxX + boxWidth,
+        boxY + boxHeight,
+        20, 20,
+        boxColor);
+
+    // Título central dentro da box
+    al_draw_text(fontTitle, titleColor,
+                 boxX + boxWidth / 2,
+                 boxY + 30,
+                 ALLEGRO_ALIGN_CENTER,
+                 "Dificuldade do Jogo");
 
     // Define difficulty buttons
-    const int BUTTON_SIZE = 150;      // Size of each difficulty button
-    const int BUTTON_SPACING = 30;    // Space between buttons
-    const int NUM_BUTTONS = 3;        // Number of difficulty levels
+    const int BUTTON_SIZE = 150;
+    const int BUTTON_SPACING = 30;
+    const int NUM_BUTTONS = 3;
     const char* difficulties[] = { "FACIL", "MEDIO", "DIFICIL" };
 
-    // Calculate layout
+    // Layout dos botões dentro da box
     int totalWidth = NUM_BUTTONS * BUTTON_SIZE + (NUM_BUTTONS - 1) * BUTTON_SPACING;
-    int startX = (VIRTUAL_W - totalWidth) / 2;
-    int buttonY = VIRTUAL_H / 2;
+    int startX = boxX + (boxWidth - totalWidth) / 2;
+    int buttonY = boxY + 150;
 
     int i;
-    // Draw difficulty buttons
     for (i = 0; i < NUM_BUTTONS; i++) {
         int buttonX = startX + i * (BUTTON_SIZE + BUTTON_SPACING);
 
-        // Check if mouse is over this button
         bool isHovered =
             mouseX >= buttonX &&
             mouseX <= buttonX + BUTTON_SIZE &&
             mouseY >= buttonY &&
             mouseY <= buttonY + BUTTON_SIZE;
 
-        // Set appropriate button color
         ALLEGRO_COLOR color = isHovered ? buttonHoverColor : buttonColor;
 
-        // Draw button background
         al_draw_filled_rectangle(buttonX, buttonY,
                                  buttonX + BUTTON_SIZE,
                                  buttonY + BUTTON_SIZE,
                                  color);
 
-        // Draw centered text
         int textWidth = al_get_text_width(font, difficulties[i]);
         int textHeight = al_get_font_line_height(font);
         int textX = buttonX + (BUTTON_SIZE - textWidth) / 2;
@@ -297,37 +328,39 @@ void draw_difficulty_room(int mouseX, int mouseY, GameState *gameState) {
                      ALLEGRO_ALIGN_LEFT, difficulties[i]);
     }
 
-    if(!gameState->isOnline){
-        // Draw back button below difficulty buttons
+       // Botão VOLTAR centralizado abaixo dos botões
+    if (!gameState->isOnline) {
         const int BACK_BUTTON_WIDTH = 150;
         const int BACK_BUTTON_HEIGHT = 40;
         const int BACK_BUTTON_SPACING_Y = 40;
 
-        int backButtonX = (VIRTUAL_W - BACK_BUTTON_WIDTH) / 2;
+        int backButtonX = boxX + (boxWidth - BACK_BUTTON_WIDTH) / 2;
         int backButtonY = buttonY + BUTTON_SIZE + BACK_BUTTON_SPACING_Y;
 
-        // Check if mouse is over back button
         bool isBackHovered =
             mouseX >= backButtonX &&
             mouseX <= backButtonX + BACK_BUTTON_WIDTH &&
             mouseY >= backButtonY &&
             mouseY <= backButtonY + BACK_BUTTON_HEIGHT;
 
-        // Set appropriate button color
         ALLEGRO_COLOR backColor = isBackHovered ? buttonHoverColor : buttonColor;
 
-        // Draw back button
-        al_draw_filled_rectangle(backButtonX, backButtonY,
-                                backButtonX + BACK_BUTTON_WIDTH,
-                                backButtonY + BACK_BUTTON_HEIGHT,
-                                backColor);
+        // Aqui usa bordas arredondadas com raio 10
+        al_draw_filled_rounded_rectangle(
+            backButtonX, backButtonY,
+            backButtonX + BACK_BUTTON_WIDTH,
+            backButtonY + BACK_BUTTON_HEIGHT,
+            10, 10,
+            backColor
+        );
 
-        // Draw back button text
         int backTextHeight = al_get_font_line_height(font);
         int backTextY = backButtonY + (BACK_BUTTON_HEIGHT - backTextHeight) / 2;
 
-        al_draw_text(font, textButtonColor, backButtonX + TEXT_PADDING_X, backTextY,
-                    ALLEGRO_ALIGN_LEFT, "VOLTAR");
+        // Texto centralizado no botão
+        al_draw_text(font, textButtonColor,
+                     backButtonX + BACK_BUTTON_WIDTH / 2, backTextY,
+                     ALLEGRO_ALIGN_CENTER, "VOLTAR");
     }
 }
 
@@ -563,7 +596,7 @@ void draw_game_room(int mouseX, int mouseY, GameState *gameState, Game *game, Ga
         sprintf(errosText2, "ERROS: %d/3", (3 - op_game->lifes));
         al_draw_text(fontSmall, titleColor, panelX2 + PANEL_PADDING,
                      panelY + PANEL_PADDING + TEXT_OFFSET_Y, ALLEGRO_ALIGN_LEFT, errosText2);
-    
+
         al_draw_text(fontSmall, titleColor, panelX2 + PANEL_WIDTH / 2,
                      panelY + PANEL_PADDING + TEXT_OFFSET_Y, ALLEGRO_ALIGN_CENTER, "OPONENTE");
 
@@ -600,16 +633,24 @@ void draw_ip_room(int mouseX, int mouseY, OnlineState *online_state) {
     al_clear_to_color(backgroundColor);
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
+    // Título
     al_draw_text(fontTitle, titleColor, VIRTUAL_W / 2, 100, ALLEGRO_ALIGN_CENTER, "DIGITE O IP");
 
+    // Caixa de texto do IP
     const int BOX_WIDTH = 400;
     const int BOX_HEIGHT = 60;
     int boxX = (VIRTUAL_W - BOX_WIDTH) / 2;
     int boxY = VIRTUAL_H / 2 - BOX_HEIGHT / 2;
 
-    al_draw_filled_rectangle(boxX, boxY, boxX + BOX_WIDTH, boxY + BOX_HEIGHT, grayColor);
-    al_draw_rectangle(boxX, boxY, boxX + BOX_WIDTH, boxY + BOX_HEIGHT,
-                      online_state->ip_invalid ? errorBoxColor : buttonColor, 2);
+    al_draw_filled_rounded_rectangle(
+        boxX, boxY, boxX + BOX_WIDTH, boxY + BOX_HEIGHT,
+        10, 10, grayColor
+    );
+    al_draw_rounded_rectangle(
+        boxX, boxY, boxX + BOX_WIDTH, boxY + BOX_HEIGHT,
+        10, 10,
+        online_state->ip_invalid ? errorBoxColor : buttonColor, 2
+    );
 
     al_draw_text(font, numberColor, boxX + TEXT_PADDING_X, boxY + 10, ALLEGRO_ALIGN_LEFT, online_state->ip);
 
@@ -618,6 +659,7 @@ void draw_ip_room(int mouseX, int mouseY, OnlineState *online_state) {
                      ALLEGRO_ALIGN_CENTER, "IP invalido, tente novamente!");
     }
 
+    // Botões "VOLTAR" e "AVANCAR"
     const int BUTTON_HEIGHT = 50;
     const int BUTTON_PADDING = 20;
 
@@ -630,25 +672,35 @@ void draw_ip_room(int mouseX, int mouseY, OnlineState *online_state) {
                          mouseY >= buttonY && mouseY <= buttonY + BUTTON_HEIGHT;
     ALLEGRO_COLOR backColor = isBackHovered ? buttonHoverColor : buttonColor;
 
-    al_draw_filled_rectangle(voltarX, buttonY,
-                             voltarX + BUTTON_WIDTH, buttonY + BUTTON_HEIGHT,
-                             backColor);
+    al_draw_filled_rounded_rectangle(
+        voltarX, buttonY,
+        voltarX + BUTTON_WIDTH, buttonY + BUTTON_HEIGHT,
+        10, 10,
+        backColor
+    );
 
-    al_draw_text(font, textButtonColor, voltarX + TEXT_PADDING_X,
+    al_draw_text(font, textButtonColor,
+                 voltarX + BUTTON_WIDTH / 2,
                  buttonY + (BUTTON_HEIGHT - al_get_font_line_height(font)) / 2,
-                 ALLEGRO_ALIGN_LEFT, "VOLTAR");
+                 ALLEGRO_ALIGN_CENTER,
+                 "VOLTAR");
 
     bool isNextHovered = mouseX >= avancarX && mouseX <= avancarX + BUTTON_WIDTH &&
                          mouseY >= buttonY && mouseY <= buttonY + BUTTON_HEIGHT;
     ALLEGRO_COLOR nextColor = isNextHovered ? buttonHoverColor : buttonColor;
 
-    al_draw_filled_rectangle(avancarX, buttonY,
-                             avancarX + BUTTON_WIDTH, buttonY + BUTTON_HEIGHT,
-                             nextColor);
+    al_draw_filled_rounded_rectangle(
+        avancarX, buttonY,
+        avancarX + BUTTON_WIDTH, buttonY + BUTTON_HEIGHT,
+        10, 10,
+        nextColor
+    );
 
-    al_draw_text(font, textButtonColor, avancarX + TEXT_PADDING_X,
+    al_draw_text(font, textButtonColor,
+                 avancarX + BUTTON_WIDTH / 2,
                  buttonY + (BUTTON_HEIGHT - al_get_font_line_height(font)) / 2,
-                 ALLEGRO_ALIGN_LEFT, "AVANCAR");
+                 ALLEGRO_ALIGN_CENTER,
+                 "AVANCAR");
 }
 
 void draw_victory_room(int mouseX, int mouseY, OnlineState *online_state) {
@@ -750,11 +802,11 @@ void draw_history_room(int mouseX, int mouseY) {
     int textStartY = boxY + 70;
     int rowHeight = 30;
     int colX[] = {
-        boxX + 30,         
-        boxX + 170,        
-        boxX + 270,        
-        boxX + 400,        
-        boxX + 500         
+        boxX + 30,
+        boxX + 170,
+        boxX + 270,
+        boxX + 400,
+        boxX + 500
     };
 
     const char* headers[] = { "Data", "Tempo", "Dificuldade", "Erros", "Resultado" };

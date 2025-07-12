@@ -72,19 +72,28 @@ int handle_menu_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameState *game
 void handle_config_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameRoom *current_room) {
     if (ev.type != ALLEGRO_EVENT_MOUSE_BUTTON_DOWN || ev.mouse.button != 1)
         return;
-
     const int LEFT_MARGIN = 30;
+    const int BUTTON_WIDTH = VIRTUAL_W/3;
     const int BUTTON_HEIGHT = 50;
     const int BUTTON_PADDING = 20;
-    const float sidebarWidth = VIRTUAL_W / 3;
-    const int SAFE_BUTTON_WIDTH = sidebarWidth - 2 * LEFT_MARGIN;
+    const int TEXT_PADDING_X = 10;
     const int NUM_BUTTONS = 2;
-    const int BUTTON_Y_START = (VIRTUAL_H - (NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING)) / 2 - 80;
-    const int buttonX = LEFT_MARGIN;
 
-    int fullScreenY = BUTTON_Y_START;
+    const int boxWidth = BUTTON_WIDTH + 2 * LEFT_MARGIN;
+    const int boxHeight = 500;
+    const int boxX = (VIRTUAL_W - boxWidth) / 2;
+    const int boxY = (VIRTUAL_H - boxHeight) / 2;
+
+    const int buttonX = boxX + LEFT_MARGIN;
+    const int SAFE_BUTTON_WIDTH = BUTTON_WIDTH;
+    const int firstButtonY = boxY + 120;
+
+    // Clique em FULL SCREEN
+    int fullScreenY = firstButtonY;
     bool clickedFullscreen = mouseX >= buttonX && mouseX <= buttonX + SAFE_BUTTON_WIDTH &&
                              mouseY >= fullScreenY && mouseY <= fullScreenY + BUTTON_HEIGHT;
+
+    // Clique em BACK
     int backY = fullScreenY + BUTTON_HEIGHT + BUTTON_PADDING;
     bool clickedBack = mouseX >= buttonX && mouseX <= buttonX + SAFE_BUTTON_WIDTH &&
                        mouseY >= backY && mouseY <= backY + BUTTON_HEIGHT;
@@ -99,15 +108,17 @@ void handle_config_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameRoom *cu
         return;
     }
 
-    int totalMenuHeight = NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) - BUTTON_PADDING;
-    int firstButtonY = (VIRTUAL_H - totalMenuHeight) / 2 - 80;
-    int controlCenterX = buttonX + SAFE_BUTTON_WIDTH / 2;
+    // Controles de volume
+    int controlCenterX = boxX + boxWidth / 2;
     int circleRadius = 16;
     int spacingX = 45;
-    int spacingY = 100;
+    int spacingY = 80;
 
-    // Posicionamento Y para blocos de volume
-    int soundLabelY = firstButtonY + NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING) + 60;
+    // Mesmo cálculo do draw_config_room
+    int lastButtonY = firstButtonY + (NUM_BUTTONS * (BUTTON_HEIGHT + BUTTON_PADDING)) - BUTTON_PADDING;
+    int volumeStartY = lastButtonY + 60;
+
+    int soundLabelY = volumeStartY;
     int soundControlY = soundLabelY + 30;
 
     int musicLabelY = soundControlY + spacingY;
@@ -118,6 +129,7 @@ void handle_config_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameRoom *cu
     int musicMinusX = controlCenterX - spacingX;
     int musicPlusX  = controlCenterX + spacingX;
 
+    // Clique no botão SOUND -
     if (mouseX >= soundMinusX - circleRadius && mouseX <= soundMinusX + circleRadius &&
         mouseY >= soundControlY - circleRadius && mouseY <= soundControlY + circleRadius) {
         SOUND_VOLUME = fmaxf(0.0f, SOUND_VOLUME - 0.1f);
@@ -125,6 +137,7 @@ void handle_config_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameRoom *cu
         return;
     }
 
+    // Clique no botão SOUND +
     if (mouseX >= soundPlusX - circleRadius && mouseX <= soundPlusX + circleRadius &&
         mouseY >= soundControlY - circleRadius && mouseY <= soundControlY + circleRadius) {
         SOUND_VOLUME = fminf(1.0f, SOUND_VOLUME + 0.1f);
@@ -132,6 +145,7 @@ void handle_config_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameRoom *cu
         return;
     }
 
+    // Clique no botão MUSIC -
     if (mouseX >= musicMinusX - circleRadius && mouseX <= musicMinusX + circleRadius &&
         mouseY >= musicControlY - circleRadius && mouseY <= musicControlY + circleRadius) {
         MUSIC_VOLUME = fmaxf(0.0f, MUSIC_VOLUME - 0.1f);
@@ -139,6 +153,7 @@ void handle_config_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameRoom *cu
         return;
     }
 
+    // Clique no botão MUSIC +
     if (mouseX >= musicPlusX - circleRadius && mouseX <= musicPlusX + circleRadius &&
         mouseY >= musicControlY - circleRadius && mouseY <= musicControlY + circleRadius) {
         MUSIC_VOLUME = fminf(1.0f, MUSIC_VOLUME + 0.1f);
@@ -147,16 +162,21 @@ void handle_config_events(ALLEGRO_EVENT ev, int mouseX, int mouseY, GameRoom *cu
     }
 }
 
-
 void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMouseY, GameRoom *current_room, OnlineState* online_state, Game * game, GameState *gameState, GameState * op_game_state, Game * op_game) {
     if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
         const int BUTTON_SIZE = 150;
         const int BUTTON_SPACING = 30;
         const int NUM_BUTTONS = 3;
 
+        // Ajuste: usar as mesmas coordenadas do design
+        const int boxWidth = 600;
+        const int boxHeight = 400;
+        const int boxX = (VIRTUAL_W - boxWidth) / 2;
+        const int boxY = (VIRTUAL_H - boxHeight) / 2;
+
         int totalWidth = NUM_BUTTONS * BUTTON_SIZE + (NUM_BUTTONS - 1) * BUTTON_SPACING;
-        int startX = (VIRTUAL_W - totalWidth) / 2;
-        int buttonY = VIRTUAL_H / 2;
+        int startX = boxX + (boxWidth - totalWidth) / 2;
+        int buttonY = boxY + 150; // igual ao botão no design
 
         int i;
         int to_remove;
@@ -185,12 +205,14 @@ void handle_difficulty_events(ALLEGRO_EVENT ev, int logicalMouseX, int logicalMo
                 from_char(msg, _max_game_str_len, op_game, op_game_state);
             }
         }
+
         if(!gameState->isOnline){
             const int BACK_BUTTON_WIDTH = 150;
             const int BACK_BUTTON_HEIGHT = 40;
             const int BACK_BUTTON_SPACING_Y = 40;
 
-            int backButtonX = (VIRTUAL_W - BACK_BUTTON_WIDTH) / 2;
+            // Ajuste: usar a mesma base de cálculo do design
+            int backButtonX = boxX + (boxWidth - BACK_BUTTON_WIDTH) / 2;
             int backButtonY = buttonY + BUTTON_SIZE + BACK_BUTTON_SPACING_Y;
 
             if (logicalMouseX >= backButtonX && logicalMouseX <= backButtonX + BACK_BUTTON_WIDTH &&
