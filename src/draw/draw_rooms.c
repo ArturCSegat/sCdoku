@@ -62,7 +62,7 @@ void init_color(){
     grayColor = al_map_rgb(44, 47, 66);
     boxColor = al_map_rgb(18, 20, 27);
     buttonColor = al_map_rgb(5, 49, 84);
-    buttonHoverColor = al_map_rgb(46, 49, 79);
+    buttonHoverColor = al_map_rgb(5, 31, 68);
     textButtonColor = al_map_rgb(255, 255, 255);
     titleColor = al_map_rgb(255, 255, 255);
     selectedBoxColor = al_map_rgb(37, 47, 109);
